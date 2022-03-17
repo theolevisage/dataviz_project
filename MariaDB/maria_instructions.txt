@@ -1,4 +1,4 @@
-docker run -e MARIADB_ROOT_PASSWORD=root123 mariadb
+docker run -d -e MARIADB_ROOT_PASSWORD=root123 mariadb
 
 docker inspect -f "{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}" objective_mendel
 xxx.xxx.x.x
