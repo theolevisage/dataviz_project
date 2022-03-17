@@ -1,0 +1,27 @@
+docker run -e MARIADB_ROOT_PASSWORD=root123 mariadb
+
+docker inspect -f "{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}" objective_mendel
+xxx.xxx.x.x
+
+docker exec -ti 9a7b5ca275ab bash
+mysql -h xxx.xxx.x.x -u root -p
+root123
+CREATE DATABASE datas;
+USE datas;
+CREATE TABLE IF NOT EXISTS automats (
+    unite_number INT,
+    date TIMESTAMP,
+    automat_type INT,
+    automat_number INT,
+    tank_temp FLOAT,
+    ext_temp FLOAT,
+    milk_weight FLOAT,
+    product_weight FLOAT,
+    ph FLOAT,
+    kplus INT,
+    nacl FLOAT,
+    salmonella INT,
+    e_coli INT,
+    listeria INT,
+    PRIMARY KEY(unite_number, date, automat_number)
+);
