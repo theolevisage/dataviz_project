@@ -1,32 +1,32 @@
 <template>
   <div class="app">
-      <unicorn-header></unicorn-header>
-      <router-view />
-      <unicorn-footer></unicorn-footer>
+    <nav-header></nav-header>
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import image from './assets/img/title.png'
 import { UNICORN_STORE } from "./store/constants";
 
-import UnicornHeader from "./components/unicornHeader.vue";
-import UnicornFooter from "./components/unicornFooter.vue";
+import NavHeader from "./components/navHeader.vue";
+import { Bar } from 'vue-chartjs'
 
 export default defineComponent({
   name: 'App',
   components: {
-    UnicornHeader, UnicornFooter
+    NavHeader
   },
   data() {
     return {
-      isOpen: false,
-      image: image
+      isOpen: false
     }
   },
   beforeCreate() {
     this.$store.dispatch(UNICORN_STORE.ACTIONS.INITIALIZE_STORE);
+  },
+  mounted () {
+    this.renderChart(data, options)
   }
 });
 </script>
