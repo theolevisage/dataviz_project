@@ -1,28 +1,31 @@
-const express = require("express");
-const cors = require("cors");
-const app = express();
-const sql = require("./db")
-let corsOptions = {
-    origin: "http://localhost:8081"
-};
-app.use(cors(corsOptions));
-// parse requests of content-type - application/json
-app.use(express.json());
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-// simple route
-app.get("/", (request, response) => {
-    sql.query("SELECT * FROM tutorials WHERE published=true", (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            response.json(null, err);
-            return;
-        }
-        console.log("tutorials: ", res);
-        response.json(null, res);
-    });
+const express = require('express')
+const pool = require('./db')
+const app = express()
+const port = 8080
+
+// expose an endpoint "people"
+app.get('/', async (req, res) => {
+    res.json({coucou : "coucou"})
+})
+app.get('/people', async (req, res) => {
+    let conn;
+    try {
+        // establish a connection to MariaDB
+        conn = await pool.getConnection();
+
+        // create a new query
+        var query = "select * from automats";
+
+        // execute the query and set the result to a new variable
+        var rows = await conn.query(query);
+
+        // return the results
+        res.send(rows);
+    } catch (err) {
+        throw err;
+    } finally {
+        if (conn) return conn.release();
+    }
 });
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
-});
+
+app.listen(port, () => console.log(`Listening on port ${port}`));
