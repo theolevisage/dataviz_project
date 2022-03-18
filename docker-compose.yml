@@ -1,4 +1,10 @@
-version: "3.9"
+version: "3"
+
+networks:
+  customnetwork:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 services:
 
@@ -9,39 +15,34 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: root123
     networks:
-      - backend
+      - customnetwork
 
   collector:
     build: ./Collecteur/
     ports:
-      - "65432:65432"
+      - "65432"
     networks:
-      - backend
+      customnetwork:
+        ipv4_address: 172.20.0.10
     depends_on:
       - mariadb
 
   nginx:
     build: ./Nginx/front_dataviz/
     networks:
-        - frontend
+      - customnetwork
 
   api:
     build: ./API/
     networks:
-      - backend
-      - frontend
+      - customnetwork
     depends_on:
       - mariadb
 
   automats:
     build: ./UniteProd/
     networks:
-      - backend
+      customnetwork:
+        ipv4_address: 172.20.0.11
     depends_on:
       - collector
-
-networks:
-  frontend:
-    driver: bridge         
-  backend:
-    driver: bridge
