@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+
+  mariadb:
+    build: ./MariaDB/
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root123
+    networks:
+      - backend
+
+  collector:
+    build: ./Collecteur/
+    ports:
+      - "65432:65432"
+    networks:
+      - backend
+    depends_on:
+      - mariadb
+
+  nginx:
+    build: ./Nginx/front_dataviz/
+    networks:
+        - frontend
+
+  api:
+    build: ./API/
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - mariadb
+
+  automats:
+    build: ./UniteProd/
+    networks:
+      - backend
+    depends_on:
+      - collector
+
+networks:
+  frontend:
+    driver: bridge         
+  backend:
+    driver: bridge
