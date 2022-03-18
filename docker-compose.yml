@@ -10,10 +10,15 @@ services:
 
   mariadb:
     build: ./MariaDB/
+    command: --init-file /data/application/init.sql
+    volumes:
+        - ./MariaDB/init.sql:/data/application/init.sql
+    environment:
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: root123
+      MARIADB_DATABASE: datas
     ports:
       - "3306:3306"
-    environment:
-      MARIADB_ROOT_PASSWORD: root123
     networks:
       - customnetwork
 
