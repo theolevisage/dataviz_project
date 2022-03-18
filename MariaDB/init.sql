@@ -4,7 +4,7 @@ USE datas;
 
 CREATE TABLE IF NOT EXISTS automats (
     unite_number INT,
-    date TIMESTAMP,
+    created_at TIMESTAMP,
     automat_type INT,
     automat_number INT,
     tank_temp FLOAT,
@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS automats (
     salmonella INT,
     e_coli INT,
     listeria INT,
-    PRIMARY KEY(unite_number, date, automat_number)
+    PRIMARY KEY(unite_number, created_at, automat_number)
 );

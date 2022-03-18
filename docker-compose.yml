@@ -7,12 +7,11 @@ networks:
         - subnet: 172.20.0.0/16
 
 services:
-
   mariadb:
     build: ./MariaDB/
     command: --init-file /data/application/init.sql
     volumes:
-        - ./MariaDB/init.sql:/data/application/init.sql
+      - ./MariaDB/init.sql:/data/application/init.sql
     environment:
       MARIADB_ROOT_USER: root
       MARIADB_ROOT_PASSWORD: root123
@@ -20,12 +19,13 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - customnetwork
+      customnetwork:
+        ipv4_address: 172.20.0.9
 
   collector:
     build: ./Collecteur/
     ports:
-      - "65432"
+      - "65432:65432"
     networks:
       customnetwork:
         ipv4_address: 172.20.0.10
@@ -44,10 +44,22 @@ services:
     depends_on:
       - mariadb
 
-  automats:
+  automat1:
     build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=1
     networks:
       customnetwork:
         ipv4_address: 172.20.0.11
+    depends_on:
+      - collector
+
+  automat2:
+    build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=2
+    networks:
+      customnetwork:
+        ipv4_address: 172.20.0.12
     depends_on:
       - collector

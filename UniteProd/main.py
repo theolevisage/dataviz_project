@@ -1,15 +1,16 @@
+import os
 import socket
 import json
 import random
 import time
 
+unite_number = os.getenv('UNITE_NUMBER')
+automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 while True:
-    unite_number = 1
-    automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
-    date = round(time.time())
+    created_at = round(time.time())
     datas = {
         "unite_number": unite_number,
-        "date": date,
+        "created_at": created_at,
         "automats": [],
     }
 
@@ -52,9 +53,9 @@ while True:
         ClientMultiSocket.connect((host, port))
     except socket.error as e:
         print(str(e))
-    res = ClientMultiSocket.recv(1024)
+    res = ClientMultiSocket.recv(1024*8)
     ClientMultiSocket.send(datas)
-    received = ClientMultiSocket.recv(1024)
+    received = ClientMultiSocket.recv(1024*8)
     print(f"Sent:     {json.loads(datas)}")
     ClientMultiSocket.close()
     time.sleep(60)
