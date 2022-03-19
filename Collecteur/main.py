@@ -2,26 +2,37 @@ import socket
 import mysql.connector as mariadb
 from datetime import datetime
 from _thread import *
+import sys
+import time
 
+time.sleep(20)
 # insert information
-conn = mariadb.connect(
-    user="root",
-    password="root123",
-    host="mariadb",
-    port="3306",
-    database="datas")
-cur = conn.cursor()
+try:
+    conn = mariadb.connect(
+        host="mariadb",
+        port=3306,
+        user="root",
+        password="root123",
+        database="datas")
+    cur = conn.cursor()
+except mariadb.Error as e:
+    print(f"Error connecting to MariaDB Platform: {e}")
+    sys.exit(1)
 
-cur.execute("SELECT unite_number FROM automats")
-
-for unite_number in cur:
-    print(f"unite_number: {unite_number}")
+# test insert
+try:
+    cur.execute(
+        "INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (1, datetime.now().timestamp(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1))
+except mariadb.Error as e:
+    print(f"Error: {e}")
 
 conn.commit()
 print(f"Last Inserted ID: {cur.lastrowid}")
 
 ServerSideSocket = socket.socket()
-host = '172.20.0.10'
+host = 'collector'
 port = 65432
 ThreadCount = 0
 try:

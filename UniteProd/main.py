@@ -6,6 +6,7 @@ import time
 
 unite_number = os.getenv('UNITE_NUMBER')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
+time.sleep(25)
 while True:
     created_at = round(time.time())
     datas = {
@@ -42,7 +43,7 @@ while True:
         datas['automats'].insert(i, automat_infos)
 
     ClientMultiSocket = socket.socket()
-    host = '172.20.0.10'
+    host = 'collector'
     port = 65432
     print('Waiting for connection response')
 
