@@ -1,47 +1,48 @@
-version: "3.9"
+version: "3"
 
 services:
-
   mariadb:
     build: ./MariaDB/
+    volumes:
+      - ./MariaDB/init/:/docker-entrypoint-initdb.d/
+    environment:
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: root123
+      MARIADB_DATABASE: datas
     ports:
       - "3306:3306"
-    environment:
-      MARIADB_ROOT_PASSWORD: root123
-    networks:
-      - backend
 
   collector:
     build: ./Collecteur/
     ports:
       - "65432:65432"
-    networks:
-      - backend
+    depends_on:
+      - mariadb
+
+  api:
+    build: ./API/
+    ports:
+      - "8081:8080"
     depends_on:
       - mariadb
 
   nginx:
-    build: ./Nginx/front_dataviz/
-    networks:
-        - frontend
-
-  api:
-    build: ./API/
-    networks:
-      - backend
-      - frontend
+    build: ./Nginx/front_dataviz_js/
+    ports:
+      - "81:80"
     depends_on:
-      - mariadb
+      - api
 
-  automats:
+  automat1:
     build: ./UniteProd/
-    networks:
-      - backend
+    environment:
+      - UNITE_NUMBER=1
     depends_on:
       - collector
 
-networks:
-  frontend:
-    driver: bridge         
-  backend:
-    driver: bridge
+  automat2:
+    build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=2
+    depends_on:
+      - collector

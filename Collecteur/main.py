@@ -1,26 +1,52 @@
-# This is a sample Python script.
-
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from time import sleep
 import socket
+import mysql.connector as mariadb
+from datetime import datetime
+from _thread import *
 
-HOST = "0.0.0.0"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+# insert information
+conn = mariadb.connect(
+    user="root",
+    password="root123",
+    host="mariadb",
+    port="3306",
+    database="datas")
+cur = conn.cursor()
+
+cur.execute("SELECT unite_number FROM automats")
+
+for unite_number in cur:
+    print(f"unite_number: {unite_number}")
+
+conn.commit()
+print(f"Last Inserted ID: {cur.lastrowid}")
+
+ServerSideSocket = socket.socket()
+host = '172.20.0.10'
+port = 65432
+ThreadCount = 0
+try:
+    ServerSideSocket.bind((host, port))
+except socket.error as e:
+    print(str(e))
+print('Socket is listening..')
+ServerSideSocket.listen(5)
 
 
-if __name__ == '__main__':
+def multi_threaded_client(connection):
+    connection.send(str.encode('Server is working:'))
     while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            s.listen()
-            conn, addr = s.accept()
-            with conn:
-                print(f"Connected by {addr}")
-                while True:
-                    data = conn.recv(1024)
-                    if not data:
-                        break
-                    conn.sendall(data)
+        data = connection.recv(2048*4)
+        if not data:
+            break
+        connection.sendall(data)
+    connection.close()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+while True:
+    Client, address = ServerSideSocket.accept()
+    print('Connected to: ' + address[0] + ':' + str(address[1]))
+    start_new_thread(multi_threaded_client, (Client, ))
+    ThreadCount += 1
+    print('Thread Number: ' + str(ThreadCount))
+ServerSideSocket.close()
+conn.close()

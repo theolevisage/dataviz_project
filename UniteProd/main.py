@@ -1,29 +1,61 @@
-# This is a sample Python script.
-
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from time import sleep
+import os
 import socket
 import json
+import random
+import time
 
-HOST = "0.0.0.0"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+unite_number = os.getenv('UNITE_NUMBER')
+automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
+while True:
+    created_at = round(time.time())
+    datas = {
+        "unite_number": unite_number,
+        "created_at": created_at,
+        "automats": [],
+    }
 
-m = b'{"id": 2, "name": "abc"}'
-jsonObj = json.loads(m)
-data = jsonObj
+    for i in range(10):
+        automat_type = automat_types[i]
+        automat_number = i + 1
+        tank_temp = round(random.random() * 1.5 + 2.5, 1)
+        ext_temp = round(random.random() * 6 + 8, 1)
+        milk_weight = round(random.random() * 1095) + 3512
+        ph = round(random.random() * 0.4 + 6.8, 1)
+        kplus = round(random.random() * 12) + 35
+        nacl = round(random.random() * 0.7 + 1, 1)
+        salmonella = round(random.random() * 20) + 17
+        e_coli = round(random.random() * 14) + 35
+        listeria = round(random.random() * 26) + 28
+        automat_infos = {
+            "automat_type": automat_type,
+            "automat_number": automat_number,
+            "tank_temp": tank_temp,
+            "ext_temp": ext_temp,
+            "milk_weight": milk_weight,
+            "ph": ph,
+            "kplus": kplus,
+            "nacl": nacl,
+            "salmonella": salmonella,
+            "e_coli": e_coli,
+            "listeria": listeria
+        }
+        datas['automats'].insert(i, automat_infos)
 
-if __name__ == '__main__':
-    while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            print("BEFORE CONNECT")
-            s.connect((HOST, PORT))
-            print("AFTER CONNECT")
-            s.sendall(m)
-            received = s.recv(1024)
+    ClientMultiSocket = socket.socket()
+    host = '172.20.0.10'
+    port = 65432
+    print('Waiting for connection response')
 
-        print(f"Sent:     {json.loads(m)}")
-        print(f"Received: {json.loads(received)}")
-        sleep(5)
+    datas = json.dumps(datas).encode('utf-8')
+    jsonObj = json.loads(datas)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    try:
+        ClientMultiSocket.connect((host, port))
+    except socket.error as e:
+        print(str(e))
+    res = ClientMultiSocket.recv(1024*8)
+    ClientMultiSocket.send(datas)
+    received = ClientMultiSocket.recv(1024*8)
+    print(f"Sent:     {json.loads(datas)}")
+    ClientMultiSocket.close()
+    time.sleep(60)
