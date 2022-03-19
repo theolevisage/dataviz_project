@@ -1,4 +1,5 @@
-# fronttest
+# JS Front for datavision
+A datavision project using vue.js, vue-router and vuetify
 
 ## Project setup
 ```
