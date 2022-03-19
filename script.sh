@@ -1,1 +1,0 @@
-apt update && apt upgrade && apt install mariadb-server
