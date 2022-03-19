@@ -33,16 +33,37 @@ services:
     depends_on:
       - api
 
-  automat1:
+  unit1:
     build: ./UniteProd/
     environment:
       - UNITE_NUMBER=1
     depends_on:
       - collector
 
-  automat2:
+  unit2:
     build: ./UniteProd/
     environment:
       - UNITE_NUMBER=2
+    depends_on:
+      - collector
+
+  unit3:
+    build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=3
+    depends_on:
+      - collector
+
+  unit4:
+    build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=4
+    depends_on:
+      - collector
+
+  unit5:
+    build: ./UniteProd/
+    environment:
+      - UNITE_NUMBER=5
     depends_on:
       - collector
