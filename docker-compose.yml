@@ -1,56 +1,42 @@
 version: "3"
 
-networks:
-  customnetwork:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-
 services:
   mariadb:
     build: ./MariaDB/
-    command: --init-file /data/application/init.sql
     volumes:
-      - ./MariaDB/init.sql:/data/application/init.sql
+      - ./MariaDB/init/:/docker-entrypoint-initdb.d/
     environment:
       MARIADB_ROOT_USER: root
       MARIADB_ROOT_PASSWORD: root123
       MARIADB_DATABASE: datas
     ports:
       - "3306:3306"
-    networks:
-      customnetwork:
-        ipv4_address: 172.20.0.9
 
   collector:
     build: ./Collecteur/
     ports:
       - "65432:65432"
-    networks:
-      customnetwork:
-        ipv4_address: 172.20.0.10
+    depends_on:
+      - mariadb
+
+  api:
+    build: ./API/
+    ports:
+      - "8081:8080"
     depends_on:
       - mariadb
 
   nginx:
     build: ./Nginx/front_dataviz/
-    networks:
-      - customnetwork
-
-  api:
-    build: ./API/
-    networks:
-      - customnetwork
+    ports:
+      - "81:80"
     depends_on:
-      - mariadb
+      - api
 
   automat1:
     build: ./UniteProd/
     environment:
       - UNITE_NUMBER=1
-    networks:
-      customnetwork:
-        ipv4_address: 172.20.0.11
     depends_on:
       - collector
 
@@ -58,8 +44,5 @@ services:
     build: ./UniteProd/
     environment:
       - UNITE_NUMBER=2
-    networks:
-      customnetwork:
-        ipv4_address: 172.20.0.12
     depends_on:
       - collector
