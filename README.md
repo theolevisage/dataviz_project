@@ -10,6 +10,10 @@ docker-compose up
 ```
 > **_NOTE:_**  Vous devrez peut être executer la commande précédé `sudo` si vous n'avez pas ajouté votre utilisateur au groupe docker
 
+### URL
+- l'API est disponible via `http://127.0.0.1:8081`
+- le front est disponible via `http://127.0.0.1:81`
+
 ##  Architecture
 _Schéma d'architecture_ 
 ![archi](https://user-images.githubusercontent.com/59962729/159161412-d6f5875a-1b5f-49a3-ab37-ba83afb04dd7.png)
