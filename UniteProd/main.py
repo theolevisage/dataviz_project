@@ -58,6 +58,5 @@ while True:
     res = ClientMultiSocket.recv(1024*8)
     ClientMultiSocket.send(datas)
     received = ClientMultiSocket.recv(1024*8)
-    # print(f"Sent:     {json.loads(datas)}")
     ClientMultiSocket.close()
     time.sleep(60)
