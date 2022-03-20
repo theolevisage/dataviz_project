@@ -19,14 +19,8 @@ except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
 
-# test insert
-try:
-    cur.execute(
-        "INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (1, datetime.now().timestamp(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1))
-except mariadb.Error as e:
-    print(f"Error: {e}")
+cur.execute("INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (1, datetime.now(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1))
+
 
 conn.commit()
 print(f"Last Inserted ID: {cur.lastrowid}")
