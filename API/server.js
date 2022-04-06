@@ -10,7 +10,7 @@ app.get('/automats', async (req, res) => {
         conn = await pool.getConnection();
 
         // create a new query
-        let query = "select * from automats";
+        let query = "select * from automat";
 
         // execute the query and set the result to a new variable
         let rows = await conn.query(query);

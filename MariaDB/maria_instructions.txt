@@ -8,7 +8,7 @@ mysql -h xxx.xxx.x.x -u root -p
 root123
 CREATE DATABASE datas;
 USE datas;
-CREATE TABLE IF NOT EXISTS automats (
+CREATE TABLE IF NOT EXISTS automat (
     unite_number INT,
     date TIMESTAMP,
     automat_type INT,

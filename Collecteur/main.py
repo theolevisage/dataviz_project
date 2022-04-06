@@ -24,18 +24,20 @@ def convert_byte_to_dict(binary_data):
     str_data = binary_data.decode("UTF-8")
     return json.loads(str_data)
 
+def connect_to_db():
+    return mariadb.connect(
+                       host="mariadb",
+                       port=3306,
+                       user="root",
+                       password="root123",
+                       database="datas")
 
-def insert_in_db(dict_data):
+def insert_automats_data(dict_data):
     for automat in dict_data['automats']:
-        conn = mariadb.connect(
-            host="mariadb",
-            port=3306,
-            user="root",
-            password="root123",
-            database="datas")
+        conn = connect_to_db()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO automat (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (dict_data['unite_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
              automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
              automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
@@ -62,7 +64,7 @@ def multi_threaded_client(connection):
             dict_data = convert_byte_to_dict(data)
             if check_proof(dict_data['proof'], dict_data['created_at']):
                 print('proof match, insert datas in db')
-                insert_in_db(dict_data)
+                insert_automats_data(dict_data)
             else:
                 print('proof does not match, dont insert datas')
         else:
