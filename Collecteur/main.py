@@ -2,18 +2,15 @@ import socket
 import mysql.connector as mariadb
 from datetime import datetime
 from _thread import *
-import sys
 import time
 import json
 
 time.sleep(10)
-# insert information
 
 ServerSideSocket = socket.socket()
 host = 'collector'
 port = 65432
 ThreadCount = 0
-
 
 try:
     ServerSideSocket.bind((host, port))
@@ -48,12 +45,26 @@ def insert_in_db(dict_data):
         cur.close()
         conn.close()
 
+def check_proof(sended_proof, created_at):
+    stamp = datetime.timestamp(created_at)
+    xor = int(stamp) ^ 10000
+    needed_proof = xor << 2
+    print('sended_proof : ' + sended_proof)
+    print('needed_proof : ' + needed_proof)
+    return sended_proof == needed_proof
+
+
 def multi_threaded_client(connection):
     connection.send(str.encode('Server is working:'))
     while True:
         data = connection.recv(2048 * 4)
         if data:
-            insert_in_db(convert_byte_to_dict(data))
+            dict_data = convert_byte_to_dict(data)
+            if check_proof(dict_data['proof'], dict_data['created_at']):
+                print('proof match, insert datas in db')
+                insert_in_db(dict_data)
+            else:
+                print('proof does not match, dont insert datas')
         else:
             break
         connection.sendall(data)

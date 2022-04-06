@@ -11,10 +11,15 @@ time.sleep(10)
 while True:
     datenow = datetime.now()
     created_at = datenow.isoformat()
+    stamp = datetime.timestamp(datenow)
+    xor = int(stamp) ^ 10000
+    proof = xor << 2
+    print(proof)
     datas = {
         "unite_number": unite_number,
         "created_at": created_at,
         "automats": [],
+        "proof": proof,
     }
 
     for i in range(10):
@@ -43,12 +48,6 @@ while True:
             "listeria": listeria
         }
         datas['automats'].insert(i, automat_infos)
-    #print('coucou')
-    #stamp =  datetime.timestamp(datenow)
-    #boom = struct.pack('<L', stamp)
-    #xor = binary^bin(10000)
-    #secret = xor << 2
-    #print('secret')
     ClientMultiSocket = socket.socket()
     host = 'collector'
     port = 65432
@@ -61,8 +60,8 @@ while True:
         ClientMultiSocket.connect((host, port))
     except socket.error as e:
         print(str(e))
-    res = ClientMultiSocket.recv(1024*8)
+    res = ClientMultiSocket.recv(1024 * 8)
     ClientMultiSocket.send(datas)
-    received = ClientMultiSocket.recv(1024*8)
+    received = ClientMultiSocket.recv(1024 * 8)
     ClientMultiSocket.close()
     time.sleep(60)
