@@ -14,7 +14,6 @@ while True:
     stamp = datetime.timestamp(datenow)
     xor = int(stamp) ^ 10000
     proof = xor << 2
-    print(proof)
     datas = {
         "unite_number": unite_number,
         "created_at": created_at,

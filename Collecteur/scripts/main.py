@@ -30,42 +30,60 @@ def convert_byte_to_dict(binary_data):
     str_data = binary_data.decode("UTF-8")
     return json.loads(str_data)
 
+
 def connect_to_db():
     return mariadb.connect(
-                       host="mariadb",
-                       port=3306,
-                       user="root",
-                       password="root123",
-                       database="datas")
+        host="mariadb",
+        port=3306,
+        user="root",
+        password="root123",
+        database="datas")
+
 
 def insert_automats_data(dict_data):
-    for automat in dict_data['automats']:
+    try:
         conn = connect_to_db()
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO automat (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (dict_data['unite_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
-             automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
-             automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
-             automat['listeria'])
-        )
+        conn.autocommit = False
+        cursor = conn.cursor()
+
+        for automat in dict_data['automats']:
+            cursor.execute(
+                "INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (dict_data['unite_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                 automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
+                 automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
+                 automat['listeria'])
+            )
+
         conn.commit()
-        cur.close()
-        conn.close()
+        print('Datas inserted in db')
+
+    except mariadb.Error as error_mariadb:
+        print("Failed to update record to database rollback: {}".format(error_mariadb))
+        # reverting changes because of exception
+        conn.rollback()
+    finally:
+        # closing database connection.
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+            print("connection is closed")
+
 
 def insert_public_key(secure_payload):
-        conn = connect_to_db()
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
-            (secure_payload['unite_number'], secure_payload['pub_key'])
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
+        (secure_payload['unite_number'], secure_payload['pub_key'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 def check_proof(sended_proof, created_at):
-    datetime_created_at = datetime.strptime(created_at)
+    datetime_created_at = datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.%f')
     stamp = datetime.timestamp(datetime_created_at)
     xor = int(stamp) ^ 10000
     needed_proof = xor << 2
