@@ -1,8 +1,6 @@
 FROM python:3
-COPY main.py /
-COPY ./init.sh /
-COPY ./keygen-batch /
-RUN chmod +x ./init.sh
-RUN  ./init.sh
-CMD ["python", "./main.py"]
+COPY ./scripts/ /scripts/
+RUN chmod +x ./scripts/init.sh
+RUN ./scripts/init.sh
+CMD ["python", "/scripts/main.py"]
 EXPOSE 65432

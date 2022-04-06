@@ -14,6 +14,8 @@ services:
 
   collector:
     build: ./Collecteur/
+    environment:
+      - PYTHONUNBUFFERED=1
     ports:
       - "65432:65432"
     depends_on:
@@ -35,35 +37,50 @@ services:
 
   unit1:
     build: ./UniteProd/
+    volumes:
+      - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=1
+      - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit2:
     build: ./UniteProd/
+    volumes:
+      - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=2
+      - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit3:
     build: ./UniteProd/
+    volumes:
+      - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=3
+      - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit4:
     build: ./UniteProd/
+    volumes:
+      - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=4
+      - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit5:
     build: ./UniteProd/
+    volumes:
+      - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=5
+      - PYTHONUNBUFFERED=1
     depends_on:
       - collector
