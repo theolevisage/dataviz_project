@@ -9,7 +9,8 @@ unite_number = os.getenv('UNITE_NUMBER')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
 while True:
-    created_at = datetime.now().isoformat()
+    datenow = datetime.now()
+    created_at = datenow.isoformat()
     datas = {
         "unite_number": unite_number,
         "created_at": created_at,
@@ -42,7 +43,12 @@ while True:
             "listeria": listeria
         }
         datas['automats'].insert(i, automat_infos)
-
+    #print('coucou')
+    #stamp =  datetime.timestamp(datenow)
+    #boom = struct.pack('<L', stamp)
+    #xor = binary^bin(10000)
+    #secret = xor << 2
+    #print('secret')
     ClientMultiSocket = socket.socket()
     host = 'collector'
     port = 65432
