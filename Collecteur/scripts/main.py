@@ -7,6 +7,12 @@ import json
 
 time.sleep(10)
 
+unit1 = True
+unit2 = True
+unit3 = True
+unit4 = True
+unit5 = True
+
 ServerSideSocket = socket.socket()
 host = 'collector'
 port = 65432
@@ -47,12 +53,24 @@ def insert_automats_data(dict_data):
         cur.close()
         conn.close()
 
+def insert_public_key(secure_payload):
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
+            (secure_payload['unite_number'], secure_payload['pub_key'])
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+
 def check_proof(sended_proof, created_at):
-    stamp = datetime.timestamp(created_at)
+    datetime_created_at = datetime.strptime(created_at)
+    stamp = datetime.timestamp(datetime_created_at)
     xor = int(stamp) ^ 10000
     needed_proof = xor << 2
-    print('sended_proof : ' + sended_proof)
-    print('needed_proof : ' + needed_proof)
+    print('sended_proof : ' + str(sended_proof))
+    print('needed_proof : ' + str(needed_proof))
     return sended_proof == needed_proof
 
 

@@ -24,3 +24,8 @@ CREATE TABLE IF NOT EXISTS automat (
     listeria INT,
     PRIMARY KEY(unite_number, date, automat_number)
 );
+CREATE TABLE IF NOT EXISTS pub_key (
+    unite_number INT,
+    pub_key BLOB,
+    PRIMARY KEY(unite_number)
+);
