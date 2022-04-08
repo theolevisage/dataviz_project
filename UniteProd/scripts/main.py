@@ -18,6 +18,7 @@ print(unit_public_key)
 unite_number = os.getenv('UNITE_NUMBER')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
+
 while True:
     if (init):
         datas = {
@@ -25,6 +26,7 @@ while True:
             "public_key": unit_public_key
         }
         init = False
+        datas = json.dumps(datas).encode('utf-8')
     else:
         datenow = datetime.now()
         created_at = datenow.isoformat()
@@ -65,13 +67,16 @@ while True:
             }
             datas['automats'].insert(i, automat_infos)
 
+        # write json file in filesystem
+        datas = json.dumps(datas).encode('utf-8')
+        f = open('/jsonsavefiles/' + str(stamp) + '.json', 'wb')
+        f.write(datas)
+        f.close()
 
-    datas = json.dumps(datas).encode('utf-8')
     ClientMultiSocket = socket.socket()
     host = 'collector'
     port = 65432
     print('Waiting for connection response')
-
 
 
     try:
