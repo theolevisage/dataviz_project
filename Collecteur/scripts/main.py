@@ -4,14 +4,12 @@ from datetime import datetime
 from _thread import *
 import time
 import json
+import gnupg
+
+gpg = gnupg.GPG('/usr/bin/gpg')
+gpg.encoding = 'utf-8'
 
 time.sleep(10)
-
-unit1 = True
-unit2 = True
-unit3 = True
-unit4 = True
-unit5 = True
 
 ServerSideSocket = socket.socket()
 host = 'collector'
@@ -48,7 +46,7 @@ def insert_automats_data(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO automats (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO automat (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (dict_data['unite_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
@@ -75,7 +73,7 @@ def insert_public_key(secure_payload):
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
-        (secure_payload['unite_number'], secure_payload['pub_key'])
+        (secure_payload['unite_number'], secure_payload['public_key'])
     )
     conn.commit()
     cur.close()
@@ -98,11 +96,19 @@ def multi_threaded_client(connection):
         data = connection.recv(2048 * 4)
         if data:
             dict_data = convert_byte_to_dict(data)
-            if check_proof(dict_data['proof'], dict_data['created_at']):
-                print('proof match, insert datas in db')
-                insert_automats_data(dict_data)
-            else:
-                print('proof does not match, dont insert datas')
+            try:
+                pub_key = dict_data['public_key']
+                print('//////// YES PUBLIC KEY')
+                insert_public_key(dict_data)
+            except mariadb.Error as error_mariadb:
+                print("Failed to update record to database rollback: {}".format(error_mariadb))
+                print('////////////  NO PUBLIC KEY !!!')
+                if check_proof(dict_data['proof'], dict_data['created_at']):
+                    print('proof match, insert datas in db')
+                    insert_automats_data(dict_data)
+                else:
+                    print('proof does not match, dont insert datas')
+
         else:
             break
         connection.sendall(data)

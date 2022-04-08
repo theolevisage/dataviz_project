@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS datas;
 
 USE datas;
 
-CREATE TABLE IF NOT EXISTS automats (
+CREATE TABLE IF NOT EXISTS automat (
     unite_number INT,
     created_at TIMESTAMP,
     automat_type INT,
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS automats (
     PRIMARY KEY(unite_number, created_at, automat_number)
 );
 
-/* test values */
-INSERT INTO automats VALUES (1, current_timestamp(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1);
-INSERT INTO automats VALUES (2, current_timestamp(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1);
-INSERT INTO automats VALUES (3, current_timestamp(), 1, 1, 0.1, 0.1, 1, 0.1, 1, 0.1, 1, 1, 1);
+CREATE TABLE IF NOT EXISTS pub_key (
+                                       unite_number INT,
+                                       pub_key BLOB,
+                                       PRIMARY KEY(unite_number)
+);

@@ -27,5 +27,6 @@ CREATE TABLE IF NOT EXISTS automat (
 CREATE TABLE IF NOT EXISTS pub_key (
     unite_number INT,
     pub_key BLOB,
+    ban BOOLEAN,
     PRIMARY KEY(unite_number)
 );
