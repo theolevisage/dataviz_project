@@ -106,10 +106,12 @@ def multi_threaded_client(connection):
         data = connection.recv(2048 * 4)
         if data:
             dict_data = convert_byte_to_dict(data)
-            key = 'public_key'
+            key = "public_key"
             if(key in dict_data):
+                print('DICT DATA')
+                print(dict_data)
                 insert_public_key(dict_data)
-                collector_key = gpg.export_keys('name <mail@example.com>')
+                collector_key = gpg.export_keys('collector <collector@mail.com>')
                 payload = {
                     "name": "collector",
                     "public_key": collector_key

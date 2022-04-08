@@ -4,16 +4,19 @@ import json
 import random
 import time
 from datetime import datetime
+from pprint import pprint
 import gnupg
 
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
 
 init = True
-list = gpg.list_keys()
-print(list)
-unit_public_key = gpg.export_keys('name <mail@example.com>')
+
 unite_number = os.getenv('UNITE_NUMBER')
+name = os.getenv('NAME')
+mail = os.getenv('MAIL')
+
+unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
 
@@ -93,10 +96,18 @@ while True:
     received = ClientMultiSocket.recv(1024 * 8)
     received = convert_byte_to_dict(received)
     if('public_key' in received):
+        print("THERE IS A PUBLIC KEY INSIDE LOOOOKKKKK")
+        print(received['public_key'])
         f = open('../.keys/collector.gpg', 'x')
         f.write(received['public_key'])
         f.close()
-        gpg.import_keys(received['public_key'])
+
+        f = open('../.keys/collector.gpg', 'r')
+        import_result = gpg.import_keys(f.read())
+        f.close()
+
+        print('THE RESULT OF THE IMPORT !!')
+        pprint(import_result)
 
     ClientMultiSocket.close()
     time.sleep(60)

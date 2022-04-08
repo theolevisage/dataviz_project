@@ -52,6 +52,8 @@ services:
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
+      - NAME=unit1
+      - MAIL=unit1@mail.com
       - UNITE_NUMBER=1
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -67,6 +69,8 @@ services:
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
+      - NAME=unit2
+      - MAIL=unit2@mail.com
       - UNITE_NUMBER=2
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -82,6 +86,8 @@ services:
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
+      - NAME=unit3
+      - MAIL=unit3@mail.com
       - UNITE_NUMBER=3
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -97,6 +103,8 @@ services:
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
+      - NAME=unit4
+      - MAIL=unit4@mail.com
       - UNITE_NUMBER=4
       - PYTHONUNBUFFERED=1
     depends_on:
@@ -112,6 +120,8 @@ services:
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
+      - NAME=unit5
+      - MAIL=unit5@mail.com
       - UNITE_NUMBER=5
       - PYTHONUNBUFFERED=1
     depends_on:
