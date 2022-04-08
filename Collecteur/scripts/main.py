@@ -1,5 +1,6 @@
 import socket
 import mysql.connector as mariadb
+from os.path import exists
 from datetime import datetime
 from _thread import *
 import time
@@ -24,9 +25,14 @@ print('Socket is listening..')
 ServerSideSocket.listen(5)
 
 
-def convert_byte_to_dict(binary_data):
+def convert_data(binary_data):
     str_data = binary_data.decode("UTF-8")
-    return json.loads(str_data)
+    try:
+        data = json.loads(str_data)
+    except:
+        data = str_data
+    finally:
+        return data
 
 
 def connect_to_db():
@@ -68,26 +74,37 @@ def insert_automats_data(dict_data):
 
 
 def insert_public_key(secure_payload):
-    try:
-        conn = connect_to_db()
-        cur = conn.cursor()
+    # try:
+    #     conn = connect_to_db()
+    #     cur = conn.cursor()
+    #
+    #     cur.execute(
+    #         "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
+    #         (secure_payload['unite_number'], secure_payload['public_key'])
+    #     )
+    #
+    #     conn.commit()
+    #     print('public key inserted')
+    #
+    # except mariadb.Error as error_mariadb:
+    #     print("Failed to update record to database rollback: {}".format(error_mariadb))
+    #     # reverting changes because of exception
+    # finally:
+    #     # closing database connection.
+    #     if conn.is_connected():
+    #         cur.close()
+    #         conn.close()
+    path_public_unit_key = '../.keys/unit_' + secure_payload['unite_number'] + '.gpg'
+    file_exists = exists(path_public_unit_key)
+    if not file_exists:
+        f = open(path_public_unit_key, 'x')
+        f.write(secure_payload['public_key'])
+        f.close()
+        f = open(path_public_unit_key, 'r')
+        import_result = gpg.import_keys(f.read())
+        gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
+        f.close()
 
-        cur.execute(
-            "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
-            (secure_payload['unite_number'], secure_payload['public_key'])
-        )
-
-        conn.commit()
-        print('public key inserted')
-
-    except mariadb.Error as error_mariadb:
-        print("Failed to update record to database rollback: {}".format(error_mariadb))
-        # reverting changes because of exception
-    finally:
-        # closing database connection.
-        if conn.is_connected():
-            cur.close()
-            conn.close()
 
 
 def check_proof(sended_proof, created_at):
@@ -105,7 +122,7 @@ def multi_threaded_client(connection):
     while True:
         data = connection.recv(2048 * 4)
         if data:
-            dict_data = convert_byte_to_dict(data)
+            dict_data = convert_data(data)
             key = "public_key"
             if(key in dict_data):
                 print('DICT DATA')
@@ -118,6 +135,8 @@ def multi_threaded_client(connection):
                 }
                 data = json.dumps(payload).encode('utf-8')
             else:
+                decrypted_data = gpg.decrypt(dict_data)
+                dict_data = convert_data(decrypted_data.data)
                 if check_proof(dict_data['proof'], dict_data['created_at']):
                     print('proof match, insert datas in db')
                     insert_automats_data(dict_data)

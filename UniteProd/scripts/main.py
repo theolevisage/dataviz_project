@@ -5,6 +5,7 @@ import random
 import time
 from datetime import datetime
 from pprint import pprint
+from os.path import exists
 import gnupg
 
 gpg = gnupg.GPG('/usr/bin/gpg')
@@ -21,9 +22,14 @@ automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
 
 
-def convert_byte_to_dict(binary_data):
+def convert_data(binary_data):
     str_data = binary_data.decode("UTF-8")
-    return json.loads(str_data)
+    try:
+        data = json.loads(str_data)
+    except:
+        data = str_data
+    finally:
+        return data
 
 while True:
     if (init):
@@ -79,6 +85,10 @@ while True:
         f.write(datas)
         f.close()
 
+        # encrypt datas
+        encrypt_datas = gpg.encrypt(datas, 'collector@mail.com')
+        datas = encrypt_datas.data
+
     ClientMultiSocket = socket.socket()
     host = 'collector'
     port = 65432
@@ -94,16 +104,19 @@ while True:
     res = ClientMultiSocket.recv(1024 * 8)
     ClientMultiSocket.send(datas)
     received = ClientMultiSocket.recv(1024 * 8)
-    received = convert_byte_to_dict(received)
+    received = convert_data(received)
+    # pour l'instant on reçoit la clé public en retour à chaque fois donc on rentre tout le temps dans le if
     if('public_key' in received):
-        print("THERE IS A PUBLIC KEY INSIDE LOOOOKKKKK")
-        print(received['public_key'])
-        f = open('../.keys/collector.gpg', 'x')
-        f.write(received['public_key'])
-        f.close()
+        path_public_collector_key = '../.keys/collector.gpg'
+        file_exists = exists(path_public_collector_key)
+        if not file_exists:
+            f = open('../.keys/collector.gpg', 'x')
+            f.write(received['public_key'])
+            f.close()
 
         f = open('../.keys/collector.gpg', 'r')
         import_result = gpg.import_keys(f.read())
+        gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
         f.close()
 
         print('THE RESULT OF THE IMPORT !!')
