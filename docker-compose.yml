@@ -13,12 +13,15 @@ services:
       - "3306:3306"
 
   collector:
-    build: ./Collecteur/
+    build:
+      context: ./Collecteur
+      dockerfile: ./Dockerfile
+      args:
+        NAME: collector
+        MAIL: collector@mail.com
     volumes:
       - ./Collecteur/scripts:/scripts
     environment:
-      - NAME=collector
-      - MAIL=collector@email.com
       - PYTHONUNBUFFERED=1
     ports:
       - "65432:65432"
@@ -40,56 +43,76 @@ services:
       - api
 
   unit1:
-    build: ./UniteProd/
+    build:
+      context: ./UniteProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit1
+        MAIL: unit1@mail.com
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=1
-      - UID='unite1 unite1@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit2:
-    build: ./UniteProd/
+    build:
+      context: ./UniteProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit2
+        MAIL: unit2@mail.com
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=2
-      - UID='unit2 unit2@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit3:
-    build: ./UniteProd/
+    build:
+      context: ./UniteProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit3
+        MAIL: unit3@mail.com
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=3
-      - UID='unit3 unit3@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit4:
-    build: ./UniteProd/
+    build:
+      context: ./UniteProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit4
+        MAIL: unit4@mail.com
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=4
-      - UID='unit4 unit4@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
 
   unit5:
-    build: ./UniteProd/
+    build:
+      context: ./UniteProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit5
+        MAIL: unit5@mail.com
     volumes:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=5
-      - UID='unite5 unite5@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
