@@ -1,6 +1,7 @@
 FROM python:3
-COPY ./scripts/ /scripts/
-RUN chmod +x ./scripts/init.sh
-RUN ./scripts/init.sh
-CMD ["python", "/scripts/main.py"]
+WORKDIR /scripts
+COPY ./scripts .
+RUN chmod +x init.sh
+RUN ./init.sh
+CMD ["python", "./main.py"]
 EXPOSE 65432
