@@ -56,6 +56,16 @@ services:
       - MAIL=unit1@mail.com
       - UNITE_NUMBER=1
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=9
+      - AUTOMAT_2_TYPE=6
+      - AUTOMAT_3_TYPE=4
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=1
+      - AUTOMAT_6_TYPE=10
+      - AUTOMAT_7_TYPE=13
+      - AUTOMAT_8_TYPE=5
+      - AUTOMAT_9_TYPE=1
+      - AUTOMAT_10_TYPE=7
     depends_on:
       - collector
 
@@ -73,6 +83,16 @@ services:
       - MAIL=unit2@mail.com
       - UNITE_NUMBER=2
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=13
+      - AUTOMAT_2_TYPE=10
+      - AUTOMAT_3_TYPE=7
+      - AUTOMAT_4_TYPE=5
+      - AUTOMAT_5_TYPE=8
+      - AUTOMAT_6_TYPE=12
+      - AUTOMAT_7_TYPE=10
+      - AUTOMAT_8_TYPE=8
+      - AUTOMAT_9_TYPE=1
+      - AUTOMAT_10_TYPE=4
     depends_on:
       - collector
 
@@ -90,6 +110,16 @@ services:
       - MAIL=unit3@mail.com
       - UNITE_NUMBER=3
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=8
+      - AUTOMAT_2_TYPE=6
+      - AUTOMAT_3_TYPE=1
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=3
+      - AUTOMAT_6_TYPE=9
+      - AUTOMAT_7_TYPE=11
+      - AUTOMAT_8_TYPE=3
+      - AUTOMAT_9_TYPE=2
+      - AUTOMAT_10_TYPE=6
     depends_on:
       - collector
 
@@ -107,6 +137,16 @@ services:
       - MAIL=unit4@mail.com
       - UNITE_NUMBER=4
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=8
+      - AUTOMAT_2_TYPE=9
+      - AUTOMAT_3_TYPE=6
+      - AUTOMAT_4_TYPE=1
+      - AUTOMAT_5_TYPE=4
+      - AUTOMAT_6_TYPE=10
+      - AUTOMAT_7_TYPE=7
+      - AUTOMAT_8_TYPE=6
+      - AUTOMAT_9_TYPE=5
+      - AUTOMAT_10_TYPE=9
     depends_on:
       - collector
 
@@ -124,5 +164,15 @@ services:
       - MAIL=unit5@mail.com
       - UNITE_NUMBER=5
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=10
+      - AUTOMAT_2_TYPE=1
+      - AUTOMAT_3_TYPE=11
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=5
+      - AUTOMAT_6_TYPE=4
+      - AUTOMAT_7_TYPE=7
+      - AUTOMAT_8_TYPE=9
+      - AUTOMAT_9_TYPE=2
+      - AUTOMAT_10_TYPE=3
     depends_on:
       - collector

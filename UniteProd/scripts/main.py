@@ -14,7 +14,17 @@ unite_number = os.getenv('UNITE_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
 unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
-automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
+automat_1_type = os.getenv('AUTOMAT_1_TYPE')
+automat_2_type = os.getenv('AUTOMAT_2_TYPE')
+automat_3_type = os.getenv('AUTOMAT_3_TYPE')
+automat_4_type = os.getenv('AUTOMAT_4_TYPE')
+automat_5_type = os.getenv('AUTOMAT_5_TYPE')
+automat_6_type = os.getenv('AUTOMAT_6_TYPE')
+automat_7_type = os.getenv('AUTOMAT_7_TYPE')
+automat_8_type = os.getenv('AUTOMAT_8_TYPE')
+automat_9_type = os.getenv('AUTOMAT_9_TYPE')
+automat_10_type = os.getenv('AUTOMAT_10_TYPE')
+automat_types = [automat_1_type, automat_2_type, automat_3_type, automat_4_type, automat_5_type, automat_6_type, automat_7_type, automat_8_type, automat_9_type, automat_10_type]
 time.sleep(10)
 
 
