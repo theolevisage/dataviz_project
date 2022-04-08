@@ -13,11 +13,14 @@ init = True
 list = gpg.list_keys()
 print(list)
 unit_public_key = gpg.export_keys('name <mail@example.com>')
-print('unit_public_key')
-print(unit_public_key)
 unite_number = os.getenv('UNITE_NUMBER')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
+
+
+def convert_byte_to_dict(binary_data):
+    str_data = binary_data.decode("UTF-8")
+    return json.loads(str_data)
 
 while True:
     if (init):
@@ -79,6 +82,7 @@ while True:
     print('Waiting for connection response')
 
 
+
     try:
         ClientMultiSocket.connect((host, port))
     except socket.error as e:
@@ -87,5 +91,12 @@ while True:
     res = ClientMultiSocket.recv(1024 * 8)
     ClientMultiSocket.send(datas)
     received = ClientMultiSocket.recv(1024 * 8)
+    received = convert_byte_to_dict(received)
+    if('public_key' in received):
+        f = open('../.keys/collector.gpg', 'x')
+        f.write(received['public_key'])
+        f.close()
+        gpg.import_keys(received['public_key'])
+
     ClientMultiSocket.close()
     time.sleep(60)

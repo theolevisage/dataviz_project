@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS automat (
 );
 
 CREATE TABLE IF NOT EXISTS pub_key (
-                                       unite_number INT,
-                                       pub_key BLOB,
-                                       PRIMARY KEY(unite_number)
+    unite_number INT,
+    pub_key BLOB,
+    ban TINYINT(1),
+    PRIMARY KEY(unite_number)
 );

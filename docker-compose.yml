@@ -17,6 +17,8 @@ services:
     volumes:
       - ./Collecteur/scripts:/scripts
     environment:
+      - NAME=collector
+      - MAIL=collector@email.com
       - PYTHONUNBUFFERED=1
     ports:
       - "65432:65432"
@@ -43,6 +45,7 @@ services:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=1
+      - UID='unite1 unite1@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
@@ -53,6 +56,7 @@ services:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=2
+      - UID='unit2 unit2@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
@@ -63,6 +67,7 @@ services:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=3
+      - UID='unit3 unit3@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
@@ -73,6 +78,7 @@ services:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=4
+      - UID='unit4 unit4@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector
@@ -83,6 +89,7 @@ services:
       - ./UniteProd/scripts:/scripts
     environment:
       - UNITE_NUMBER=5
+      - UID='unite5 unite5@email.com'
       - PYTHONUNBUFFERED=1
     depends_on:
       - collector

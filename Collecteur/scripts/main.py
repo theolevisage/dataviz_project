@@ -54,7 +54,7 @@ def insert_automats_data(dict_data):
             )
 
         conn.commit()
-        print('Datas inserted in db')
+        print('automats datas inserted')
 
     except mariadb.Error as error_mariadb:
         print("Failed to update record to database rollback: {}".format(error_mariadb))
@@ -65,19 +65,29 @@ def insert_automats_data(dict_data):
         if conn.is_connected():
             cursor.close()
             conn.close()
-            print("connection is closed")
 
 
 def insert_public_key(secure_payload):
-    conn = connect_to_db()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
-        (secure_payload['unite_number'], secure_payload['public_key'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
+            (secure_payload['unite_number'], secure_payload['public_key'])
+        )
+
+        conn.commit()
+        print('public key inserted')
+
+    except mariadb.Error as error_mariadb:
+        print("Failed to update record to database rollback: {}".format(error_mariadb))
+        # reverting changes because of exception
+    finally:
+        # closing database connection.
+        if conn.is_connected():
+            cur.close()
+            conn.close()
 
 
 def check_proof(sended_proof, created_at):
@@ -96,19 +106,21 @@ def multi_threaded_client(connection):
         data = connection.recv(2048 * 4)
         if data:
             dict_data = convert_byte_to_dict(data)
-            try:
-                pub_key = dict_data['public_key']
-                print('//////// YES PUBLIC KEY')
+            key = 'public_key'
+            if(key in dict_data):
                 insert_public_key(dict_data)
-            except mariadb.Error as error_mariadb:
-                print("Failed to update record to database rollback: {}".format(error_mariadb))
-                print('////////////  NO PUBLIC KEY !!!')
+                collector_key = gpg.export_keys('name <mail@example.com>')
+                payload = {
+                    "name": "collector",
+                    "public_key": collector_key
+                }
+                data = json.dumps(payload).encode('utf-8')
+            else:
                 if check_proof(dict_data['proof'], dict_data['created_at']):
                     print('proof match, insert datas in db')
                     insert_automats_data(dict_data)
                 else:
                     print('proof does not match, dont insert datas')
-
         else:
             break
         connection.sendall(data)

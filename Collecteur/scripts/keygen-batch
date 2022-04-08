@@ -1,6 +1,6 @@
 %no-protection
 Key-Type: default
 Subkey-Type: default
-Name-Real: name
-Name-Email: mail@example.com
+Name-Real: $name
+Name-Email: $mail
 Expire-Date: 0

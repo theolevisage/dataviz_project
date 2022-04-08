@@ -6,6 +6,9 @@ if test -f "$FILE"; then
     echo "$FILE exists."
 else
     echo "$FILE does not exist."
-    gpg --batch --gen-key keygen-batch
+    export name=$1
+    export mail=$2
+    envsubst < keygen-batch > updated-keygen-batch
+    gpg --batch --gen-key updated-keygen-batch
     gpg --output /.keys/public.pgp --armor --export mail@example.com
 fi
