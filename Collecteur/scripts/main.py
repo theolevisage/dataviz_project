@@ -64,10 +64,8 @@ def insert_automats_data(dict_data):
 
     except mariadb.Error as error_mariadb:
         print("Failed to update record to database rollback: {}".format(error_mariadb))
-        # reverting changes because of exception
         conn.rollback()
     finally:
-        # closing database connection.
         if conn.is_connected():
             cursor.close()
             conn.close()
@@ -112,8 +110,6 @@ def check_proof(sended_proof, created_at):
     stamp = datetime.timestamp(datetime_created_at)
     xor = int(stamp) ^ 10000
     needed_proof = xor << 2
-    print('sended_proof : ' + str(sended_proof))
-    print('needed_proof : ' + str(needed_proof))
     return sended_proof == needed_proof
 
 
@@ -125,8 +121,6 @@ def multi_threaded_client(connection):
             dict_data = convert_data(data)
             key = "public_key"
             if(key in dict_data):
-                print('DICT DATA')
-                print(dict_data)
                 insert_public_key(dict_data)
                 collector_key = gpg.export_keys('collector <collector@mail.com>')
                 payload = {

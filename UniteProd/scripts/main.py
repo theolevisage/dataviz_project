@@ -4,19 +4,15 @@ import json
 import random
 import time
 from datetime import datetime
-from pprint import pprint
 from os.path import exists
 import gnupg
 
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
-
 init = True
-
 unite_number = os.getenv('UNITE_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
-
 unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
 automat_types = [13, 12, 15, 9, 8, 2, 6, 8, 5, 2]
 time.sleep(10)
@@ -51,7 +47,6 @@ while True:
             "automats": [],
             "proof": proof,
         }
-
         for i in range(10):
             automat_type = automat_types[i]
             automat_number = i + 1
@@ -78,13 +73,11 @@ while True:
                 "listeria": listeria
             }
             datas['automats'].insert(i, automat_infos)
-
         # write json file in filesystem
         datas = json.dumps(datas).encode('utf-8')
         f = open('/jsonsavefiles/' + str(stamp) + '.json', 'wb')
         f.write(datas)
         f.close()
-
         # encrypt datas
         encrypt_datas = gpg.encrypt(datas, 'collector@mail.com')
         datas = encrypt_datas.data
@@ -93,9 +86,6 @@ while True:
     host = 'collector'
     port = 65432
     print('Waiting for connection response')
-
-
-
     try:
         ClientMultiSocket.connect((host, port))
     except socket.error as e:
@@ -105,7 +95,6 @@ while True:
     ClientMultiSocket.send(datas)
     received = ClientMultiSocket.recv(1024 * 8)
     received = convert_data(received)
-    # pour l'instant on reçoit la clé public en retour à chaque fois donc on rentre tout le temps dans le if
     if('public_key' in received):
         path_public_collector_key = '../.keys/collector.gpg'
         file_exists = exists(path_public_collector_key)
@@ -113,14 +102,10 @@ while True:
             f = open('../.keys/collector.gpg', 'x')
             f.write(received['public_key'])
             f.close()
-
-        f = open('../.keys/collector.gpg', 'r')
-        import_result = gpg.import_keys(f.read())
-        gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
-        f.close()
-
-        print('THE RESULT OF THE IMPORT !!')
-        pprint(import_result)
+            f = open('../.keys/collector.gpg', 'r')
+            import_result = gpg.import_keys(f.read())
+            gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
+            f.close()
 
     ClientMultiSocket.close()
     time.sleep(60)
