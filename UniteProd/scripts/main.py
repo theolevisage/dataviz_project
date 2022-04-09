@@ -19,8 +19,6 @@ unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
 def get_automats_types():
     types = []
     for i in range(10):
-        print("get_automats_types")
-        print(i)
         types.insert(i, os.getenv('AUTOMAT_' + str(i+1) + '_TYPE'))
     return types
 
@@ -48,8 +46,6 @@ def generate_automats_data(created_at, proof):
         "proof": proof,
     }
     for i in range(10):
-        print("generating automats data")
-        print(i)
         automat_type = automats_types[i]
         automat_number = i + 1
         tank_temp = round(random.random() * 1.5 + 2.5, 1)
@@ -134,11 +130,6 @@ while True:
             f.close()
     else:
         decrypt_result = gpg.decrypt(received)
-        print(decrypt_result.ok)
-        print(decrypt_result.data)
-        print(decrypt_result.status)
-        print(decrypt_result.stderr)
-
 
     ClientMultiSocket.close()
     time.sleep(60)
