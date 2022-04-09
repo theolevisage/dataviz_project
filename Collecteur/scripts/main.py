@@ -53,8 +53,8 @@ def insert_automats_data(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO automat (unite_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (dict_data['unite_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                "INSERT INTO automat (unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
@@ -63,7 +63,7 @@ def insert_automats_data(dict_data):
         data_inserted = True
         print('automats datas inserted')
     except mariadb.Error as error_mariadb:
-        print("Failed to update record to database rollback: {}".format(error_mariadb))
+        print("Failed to insert automat datas to database rollback: {}".format(error_mariadb))
         conn.rollback()
     finally:
         if conn.is_connected():
@@ -72,17 +72,38 @@ def insert_automats_data(dict_data):
         return data_inserted
 
 
-def insert_public_key(secure_payload):
-    path_public_unit_key = '../.keys/unit_' + secure_payload['unite_number'] + '.gpg'
-    file_exists = exists(path_public_unit_key)
-    if not file_exists:
-        f = open(path_public_unit_key, 'x')
-        f.write(secure_payload['public_key'])
-        f.close()
-        f = open(path_public_unit_key, 'r')
-        import_result = gpg.import_keys(f.read())
-        gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
-        f.close()
+def insert_production_unit(secure_payload):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO production_unit (unit_number, ban) VALUES (%s, %s)",
+            (secure_payload['unit_number'], 0)
+        )
+
+        conn.commit()
+        print('unit inserted')
+
+        path_public_unit_key = '../.keys/unit_' + secure_payload['unit_number'] + '.gpg'
+        file_exists = exists(path_public_unit_key)
+        if not file_exists:
+            f = open(path_public_unit_key, 'x')
+            f.write(secure_payload['public_key'])
+            f.close()
+            f = open(path_public_unit_key, 'r')
+            import_result = gpg.import_keys(f.read())
+            gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
+            f.close()
+
+    except mariadb.Error as error_mariadb:
+        print("Failed to insert production unit to database rollback: {}".format(error_mariadb))
+        # reverting changes because of exception
+    finally:
+        # closing database connection.
+        if conn.is_connected():
+            cur.close()
+            conn.close()
 
 
 def check_proof(sended_proof, created_at):
@@ -93,6 +114,25 @@ def check_proof(sended_proof, created_at):
     return sended_proof == needed_proof
 
 
+def is_banned(unit_number):
+    is_banned = False;
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT ban FROM production_unit WHERE unit_number = %s",
+            (unit_number, )
+        )
+        is_banned = cursor.fetchone()[0]
+    except mariadb.Error as error_mariadb:
+        print("Failed to query database : {}".format(error_mariadb))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+        return is_banned
+
+
 def multi_threaded_client(connection):
     connection.send(str.encode('Server is working:'))
     while True:
@@ -101,7 +141,7 @@ def multi_threaded_client(connection):
             dict_data = convert_data(data)
             key = "public_key"
             if(key in dict_data):
-                insert_public_key(dict_data)
+                insert_production_unit(dict_data)
                 collector_key = gpg.export_keys('collector <collector@mail.com>')
                 payload = {
                     "name": "collector",
@@ -111,24 +151,22 @@ def multi_threaded_client(connection):
             else:
                 decrypted_data = gpg.decrypt(dict_data)
                 dict_data = convert_data(decrypted_data.data)
-                if check_proof(dict_data['proof'], dict_data['created_at']):
-                    print('proof match, insert datas in db')
-                    data_inserted = insert_automats_data(dict_data)
+                data_inserted = True
+                if not is_banned(dict_data['unit_number']):
+                    if check_proof(dict_data['proof'], dict_data['created_at']):
+                        print('proof match, insert datas in db')
+                        data_inserted = insert_automats_data(dict_data)
+                    else:
+                        print('proof does not match, dont insert datas')
                 else:
-                    print('proof does not match, dont insert datas')
-                    # for security reason we send true when proof does not match
-                    data_inserted = True
+                    print(str(dict_data['unit_number']), 'is banned')
+                    # this machine is banned, special treatment ?
                 payload = {
                     "name": "collector",
                     "data_inserted": data_inserted,
                     "datetime": dict_data['created_at']
                 }
-                print('collector encryption')
-                encryption_result = gpg.encrypt(json.dumps(payload).encode('utf-8'), 'unit' + dict_data['unite_number'] + '@mail.com')
-
-                print(encryption_result.ok)
-                print(encryption_result.status)
-                print(encryption_result.stderr)
+                encryption_result = gpg.encrypt(json.dumps(payload).encode('utf-8'), 'unit' + dict_data['unit_number'] + '@mail.com')
                 data = encryption_result.data
 
         else:

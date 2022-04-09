@@ -25,7 +25,7 @@ D'un autre côté une API en node.js est connectée à notre base de données, e
 Cette API est requêtée par un front en vue.js qui tourne sur un serveur Nginx.<br><br>
 
 Pour plus de détails sur chacune des parties qui compose l'architecture détaillée dans le schéma ci-dessus, se référer au README présent dans le dossier correspondant : 
- - U<sub>n</sub> => UniteProd https://github.com/theolevisage/dataviz_project/tree/main/UniteProd
+ - U<sub>n</sub> => UnitProd https://github.com/theolevisage/dataviz_project/tree/main/UnitProd
  - Python collector => Collecteur https://github.com/theolevisage/dataviz_project/tree/main/Collecteur
  - Mariadb SGDB => MariaDB https://github.com/theolevisage/dataviz_project/tree/main/MariaDB
  - API Node.js => API https://github.com/theolevisage/dataviz_project/tree/main/API

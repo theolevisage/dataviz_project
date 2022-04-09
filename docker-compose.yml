@@ -44,17 +44,17 @@ services:
 
   unit1:
     build:
-      context: ./UniteProd
+      context: ./UnitProd
       dockerfile: ./Dockerfile
       args:
         NAME: unit1
         MAIL: unit1@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
       - NAME=unit1
       - MAIL=unit1@mail.com
-      - UNITE_NUMBER=1
+      - UNIT_NUMBER=1
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=9
       - AUTOMAT_2_TYPE=6
@@ -71,17 +71,17 @@ services:
 
   unit2:
     build:
-      context: ./UniteProd
+      context: ./UnitProd
       dockerfile: ./Dockerfile
       args:
         NAME: unit2
         MAIL: unit2@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
       - NAME=unit2
       - MAIL=unit2@mail.com
-      - UNITE_NUMBER=2
+      - UNIT_NUMBER=2
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=13
       - AUTOMAT_2_TYPE=10
@@ -98,17 +98,17 @@ services:
 
   unit3:
     build:
-      context: ./UniteProd
+      context: ./UnitProd
       dockerfile: ./Dockerfile
       args:
         NAME: unit3
         MAIL: unit3@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
       - NAME=unit3
       - MAIL=unit3@mail.com
-      - UNITE_NUMBER=3
+      - UNIT_NUMBER=3
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=8
       - AUTOMAT_2_TYPE=6
@@ -125,17 +125,17 @@ services:
 
   unit4:
     build:
-      context: ./UniteProd
+      context: ./UnitProd
       dockerfile: ./Dockerfile
       args:
         NAME: unit4
         MAIL: unit4@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
       - NAME=unit4
       - MAIL=unit4@mail.com
-      - UNITE_NUMBER=4
+      - UNIT_NUMBER=4
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=8
       - AUTOMAT_2_TYPE=9
@@ -152,17 +152,17 @@ services:
 
   unit5:
     build:
-      context: ./UniteProd
+      context: ./UnitProd
       dockerfile: ./Dockerfile
       args:
         NAME: unit5
         MAIL: unit5@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
       - NAME=unit5
       - MAIL=unit5@mail.com
-      - UNITE_NUMBER=5
+      - UNIT_NUMBER=5
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=10
       - AUTOMAT_2_TYPE=1

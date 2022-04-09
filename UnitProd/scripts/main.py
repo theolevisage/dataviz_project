@@ -10,7 +10,7 @@ import gnupg
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
 init = True
-unite_number = os.getenv('UNITE_NUMBER')
+unit_number = os.getenv('UNIT_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
 unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
@@ -40,7 +40,7 @@ def make_work_proof(stamp):
 
 def generate_automats_data(created_at, proof):
     datas = {
-        "unite_number": unite_number,
+        "unit_number": unit_number,
         "created_at": created_at,
         "automats": [],
         "proof": proof,
@@ -81,7 +81,7 @@ time.sleep(10)
 while True:
     if (init):
         datas = {
-            "unite_number": unite_number,
+            "unit_number": unit_number,
             "public_key": unit_public_key
         }
         init = False
