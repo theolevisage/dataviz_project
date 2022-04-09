@@ -14,18 +14,15 @@ unite_number = os.getenv('UNITE_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
 unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
-automat_1_type = os.getenv('AUTOMAT_1_TYPE')
-automat_2_type = os.getenv('AUTOMAT_2_TYPE')
-automat_3_type = os.getenv('AUTOMAT_3_TYPE')
-automat_4_type = os.getenv('AUTOMAT_4_TYPE')
-automat_5_type = os.getenv('AUTOMAT_5_TYPE')
-automat_6_type = os.getenv('AUTOMAT_6_TYPE')
-automat_7_type = os.getenv('AUTOMAT_7_TYPE')
-automat_8_type = os.getenv('AUTOMAT_8_TYPE')
-automat_9_type = os.getenv('AUTOMAT_9_TYPE')
-automat_10_type = os.getenv('AUTOMAT_10_TYPE')
-automat_types = [automat_1_type, automat_2_type, automat_3_type, automat_4_type, automat_5_type, automat_6_type, automat_7_type, automat_8_type, automat_9_type, automat_10_type]
-time.sleep(10)
+
+
+def get_automats_types():
+    types = []
+    for i in range(10):
+        print("get_automats_types")
+        print(i)
+        types.insert(i, os.getenv('AUTOMAT_' + str(i+1) + '_TYPE'))
+    return types
 
 
 def convert_data(binary_data):
@@ -37,6 +34,54 @@ def convert_data(binary_data):
     finally:
         return data
 
+
+def make_work_proof(stamp):
+    xor = int(stamp) ^ 10000
+    return xor << 2
+
+
+def generate_automats_data(created_at, proof):
+    datas = {
+        "unite_number": unite_number,
+        "created_at": created_at,
+        "automats": [],
+        "proof": proof,
+    }
+    for i in range(10):
+        print("generating automats data")
+        print(i)
+        automat_type = automats_types[i]
+        automat_number = i + 1
+        tank_temp = round(random.random() * 1.5 + 2.5, 1)
+        ext_temp = round(random.random() * 6 + 8, 1)
+        milk_weight = round(random.random() * 1095) + 3512
+        ph = round(random.random() * 0.4 + 6.8, 1)
+        kplus = round(random.random() * 12) + 35
+        nacl = round(random.random() * 0.7 + 1, 1)
+        salmonella = round(random.random() * 20) + 17
+        e_coli = round(random.random() * 14) + 35
+        listeria = round(random.random() * 26) + 28
+        automat_infos = {
+            "automat_type": automat_type,
+            "automat_number": automat_number,
+            "tank_temp": tank_temp,
+            "ext_temp": ext_temp,
+            "milk_weight": milk_weight,
+            "ph": ph,
+            "kplus": kplus,
+            "nacl": nacl,
+            "salmonella": salmonella,
+            "e_coli": e_coli,
+            "listeria": listeria
+        }
+        datas['automats'].insert(i, automat_infos)
+    return datas
+
+
+# get automats_types from env
+automats_types = get_automats_types()
+time.sleep(10)
+
 while True:
     if (init):
         datas = {
@@ -47,42 +92,12 @@ while True:
         datas = json.dumps(datas).encode('utf-8')
     else:
         datenow = datetime.now()
-        created_at = datenow.isoformat()
         stamp = datetime.timestamp(datenow)
-        xor = int(stamp) ^ 10000
-        proof = xor << 2
-        datas = {
-            "unite_number": unite_number,
-            "created_at": created_at,
-            "automats": [],
-            "proof": proof,
-        }
-        for i in range(10):
-            automat_type = automat_types[i]
-            automat_number = i + 1
-            tank_temp = round(random.random() * 1.5 + 2.5, 1)
-            ext_temp = round(random.random() * 6 + 8, 1)
-            milk_weight = round(random.random() * 1095) + 3512
-            ph = round(random.random() * 0.4 + 6.8, 1)
-            kplus = round(random.random() * 12) + 35
-            nacl = round(random.random() * 0.7 + 1, 1)
-            salmonella = round(random.random() * 20) + 17
-            e_coli = round(random.random() * 14) + 35
-            listeria = round(random.random() * 26) + 28
-            automat_infos = {
-                "automat_type": automat_type,
-                "automat_number": automat_number,
-                "tank_temp": tank_temp,
-                "ext_temp": ext_temp,
-                "milk_weight": milk_weight,
-                "ph": ph,
-                "kplus": kplus,
-                "nacl": nacl,
-                "salmonella": salmonella,
-                "e_coli": e_coli,
-                "listeria": listeria
-            }
-            datas['automats'].insert(i, automat_infos)
+        # generate a proof of work
+        proof = make_work_proof(stamp)
+        created_at = datenow.isoformat()
+        # generate automats data
+        datas = generate_automats_data(created_at, proof)
         # write json file in filesystem
         datas = json.dumps(datas).encode('utf-8')
         f = open('/jsonsavefiles/' + str(stamp) + '.json', 'wb')
@@ -92,6 +107,7 @@ while True:
         encrypt_datas = gpg.encrypt(datas, 'collector@mail.com')
         datas = encrypt_datas.data
 
+    # create socket client
     ClientMultiSocket = socket.socket()
     host = 'collector'
     port = 65432
@@ -116,6 +132,13 @@ while True:
             import_result = gpg.import_keys(f.read())
             gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
             f.close()
+    else:
+        decrypt_result = gpg.decrypt(received)
+        print(decrypt_result.ok)
+        print(decrypt_result.data)
+        print(decrypt_result.status)
+        print(decrypt_result.stderr)
+
 
     ClientMultiSocket.close()
     time.sleep(60)

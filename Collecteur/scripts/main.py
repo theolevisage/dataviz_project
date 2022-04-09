@@ -107,6 +107,7 @@ def multi_threaded_client(connection):
                     "name": "collector",
                     "public_key": collector_key
                 }
+                data = json.dumps(payload).encode('utf-8')
             else:
                 decrypted_data = gpg.decrypt(dict_data)
                 dict_data = convert_data(decrypted_data.data)
@@ -122,7 +123,14 @@ def multi_threaded_client(connection):
                     "data_inserted": data_inserted,
                     "datetime": dict_data['created_at']
                 }
-            data = json.dumps(payload).encode('utf-8')
+                print('collector encryption')
+                encryption_result = gpg.encrypt(json.dumps(payload).encode('utf-8'), 'unit' + dict_data['unite_number'] + '@mail.com')
+
+                print(encryption_result.ok)
+                print(encryption_result.status)
+                print(encryption_result.stderr)
+                data = encryption_result.data
+
         else:
             break
         connection.sendall(data)
