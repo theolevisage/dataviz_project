@@ -45,6 +45,7 @@ def connect_to_db():
 
 
 def insert_automats_data(dict_data):
+    data_inserted = False
     try:
         conn = connect_to_db()
         conn.autocommit = False
@@ -58,10 +59,9 @@ def insert_automats_data(dict_data):
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
             )
-
         conn.commit()
+        data_inserted = True
         print('automats datas inserted')
-
     except mariadb.Error as error_mariadb:
         print("Failed to update record to database rollback: {}".format(error_mariadb))
         conn.rollback()
@@ -69,29 +69,10 @@ def insert_automats_data(dict_data):
         if conn.is_connected():
             cursor.close()
             conn.close()
+        return data_inserted
 
 
 def insert_public_key(secure_payload):
-    # try:
-    #     conn = connect_to_db()
-    #     cur = conn.cursor()
-    #
-    #     cur.execute(
-    #         "INSERT INTO pub_key (unite_number, pub_key) VALUES (%s, %s)",
-    #         (secure_payload['unite_number'], secure_payload['public_key'])
-    #     )
-    #
-    #     conn.commit()
-    #     print('public key inserted')
-    #
-    # except mariadb.Error as error_mariadb:
-    #     print("Failed to update record to database rollback: {}".format(error_mariadb))
-    #     # reverting changes because of exception
-    # finally:
-    #     # closing database connection.
-    #     if conn.is_connected():
-    #         cur.close()
-    #         conn.close()
     path_public_unit_key = '../.keys/unit_' + secure_payload['unite_number'] + '.gpg'
     file_exists = exists(path_public_unit_key)
     if not file_exists:
@@ -102,7 +83,6 @@ def insert_public_key(secure_payload):
         import_result = gpg.import_keys(f.read())
         gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
         f.close()
-
 
 
 def check_proof(sended_proof, created_at):
@@ -127,15 +107,22 @@ def multi_threaded_client(connection):
                     "name": "collector",
                     "public_key": collector_key
                 }
-                data = json.dumps(payload).encode('utf-8')
             else:
                 decrypted_data = gpg.decrypt(dict_data)
                 dict_data = convert_data(decrypted_data.data)
                 if check_proof(dict_data['proof'], dict_data['created_at']):
                     print('proof match, insert datas in db')
-                    insert_automats_data(dict_data)
+                    data_inserted = insert_automats_data(dict_data)
                 else:
                     print('proof does not match, dont insert datas')
+                    # for security reason we send true when proof does not match
+                    data_inserted = True
+                payload = {
+                    "name": "collector",
+                    "data_inserted": data_inserted,
+                    "datetime": dict_data['created_at']
+                }
+            data = json.dumps(payload).encode('utf-8')
         else:
             break
         connection.sendall(data)
