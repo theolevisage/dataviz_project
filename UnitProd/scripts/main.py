@@ -135,6 +135,10 @@ while True:
             f.close()
     else:
         decrypt_result = gpg.decrypt(received)
+        print(decrypt_result.ok)
+        print(decrypt_result.status)
+        print(decrypt_result.stderr)
+        print(decrypt_result.data)
 
     ClientMultiSocket.close()
     time.sleep(60)
