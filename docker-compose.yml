@@ -13,7 +13,12 @@ services:
       - "3306:3306"
 
   collector:
-    build: ./Collecteur/
+    build:
+      context: ./Collecteur
+      dockerfile: ./Dockerfile
+      args:
+        NAME: collector
+        MAIL: collector@mail.com
     volumes:
       - ./Collecteur/scripts:/scripts
     environment:
@@ -38,51 +43,136 @@ services:
       - api
 
   unit1:
-    build: ./UniteProd/
+    build:
+      context: ./UnitProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit1
+        MAIL: unit1@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
-      - UNITE_NUMBER=1
+      - NAME=unit1
+      - MAIL=unit1@mail.com
+      - UNIT_NUMBER=1
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=9
+      - AUTOMAT_2_TYPE=6
+      - AUTOMAT_3_TYPE=4
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=1
+      - AUTOMAT_6_TYPE=10
+      - AUTOMAT_7_TYPE=13
+      - AUTOMAT_8_TYPE=5
+      - AUTOMAT_9_TYPE=1
+      - AUTOMAT_10_TYPE=7
     depends_on:
       - collector
 
   unit2:
-    build: ./UniteProd/
+    build:
+      context: ./UnitProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit2
+        MAIL: unit2@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
-      - UNITE_NUMBER=2
+      - NAME=unit2
+      - MAIL=unit2@mail.com
+      - UNIT_NUMBER=2
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=13
+      - AUTOMAT_2_TYPE=10
+      - AUTOMAT_3_TYPE=7
+      - AUTOMAT_4_TYPE=5
+      - AUTOMAT_5_TYPE=8
+      - AUTOMAT_6_TYPE=12
+      - AUTOMAT_7_TYPE=10
+      - AUTOMAT_8_TYPE=8
+      - AUTOMAT_9_TYPE=1
+      - AUTOMAT_10_TYPE=4
     depends_on:
       - collector
 
   unit3:
-    build: ./UniteProd/
+    build:
+      context: ./UnitProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit3
+        MAIL: unit3@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
-      - UNITE_NUMBER=3
+      - NAME=unit3
+      - MAIL=unit3@mail.com
+      - UNIT_NUMBER=3
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=8
+      - AUTOMAT_2_TYPE=6
+      - AUTOMAT_3_TYPE=1
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=3
+      - AUTOMAT_6_TYPE=9
+      - AUTOMAT_7_TYPE=11
+      - AUTOMAT_8_TYPE=3
+      - AUTOMAT_9_TYPE=2
+      - AUTOMAT_10_TYPE=6
     depends_on:
       - collector
 
   unit4:
-    build: ./UniteProd/
+    build:
+      context: ./UnitProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit4
+        MAIL: unit4@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
-      - UNITE_NUMBER=4
+      - NAME=unit4
+      - MAIL=unit4@mail.com
+      - UNIT_NUMBER=4
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=8
+      - AUTOMAT_2_TYPE=9
+      - AUTOMAT_3_TYPE=6
+      - AUTOMAT_4_TYPE=1
+      - AUTOMAT_5_TYPE=4
+      - AUTOMAT_6_TYPE=10
+      - AUTOMAT_7_TYPE=7
+      - AUTOMAT_8_TYPE=6
+      - AUTOMAT_9_TYPE=5
+      - AUTOMAT_10_TYPE=9
     depends_on:
       - collector
 
   unit5:
-    build: ./UniteProd/
+    build:
+      context: ./UnitProd
+      dockerfile: ./Dockerfile
+      args:
+        NAME: unit5
+        MAIL: unit5@mail.com
     volumes:
-      - ./UniteProd/scripts:/scripts
+      - ./UnitProd/scripts:/scripts
     environment:
-      - UNITE_NUMBER=5
+      - NAME=unit5
+      - MAIL=unit5@mail.com
+      - UNIT_NUMBER=5
       - PYTHONUNBUFFERED=1
+      - AUTOMAT_1_TYPE=10
+      - AUTOMAT_2_TYPE=1
+      - AUTOMAT_3_TYPE=11
+      - AUTOMAT_4_TYPE=2
+      - AUTOMAT_5_TYPE=5
+      - AUTOMAT_6_TYPE=4
+      - AUTOMAT_7_TYPE=7
+      - AUTOMAT_8_TYPE=9
+      - AUTOMAT_9_TYPE=2
+      - AUTOMAT_10_TYPE=3
     depends_on:
       - collector

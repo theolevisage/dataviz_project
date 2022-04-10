@@ -1,5 +1,5 @@
 # Dataviz' project
-## UniteProd
+## UnitProd
 Ce conteneur génère des données pour une unité de production. 
 
 ## Etat actuel

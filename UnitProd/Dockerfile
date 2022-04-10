@@ -10,7 +10,7 @@ RUN apt install -y python3-pip
 RUN chmod +x init.sh
 RUN ./init.sh ${NAME} ${MAIL}
 
-RUN pip3 install mysql-connector-python
 RUN pip3 install python-gnupg
+RUN mkdir /jsonsavefiles
 EXPOSE 65432
 CMD ["python", "./main.py"]
