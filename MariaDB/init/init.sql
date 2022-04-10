@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS automat (
 );
 
 CREATE TABLE IF NOT EXISTS anomaly (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     occurence_date TIMESTAMP,
     unit_number INT,
     created_at TIMESTAMP,

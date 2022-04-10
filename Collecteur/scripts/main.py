@@ -44,6 +44,122 @@ def connect_to_db():
         database="datas")
 
 
+def is_data_correct(dict_data):
+    errors = []
+    for automat in dict_data['automats']:
+        automat_errors = []
+        if not 1 <= int(automat['automat_number']) <= 10:
+            automat_errors.append(automat['automat_number'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR automat_number : ')
+            print(automat['automat_number'])
+
+        if not 1 <= int(automat['automat_type']) <= 15:
+            automat_errors.append(automat['automat_type'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR automat_type : ')
+            print(automat['automat_type'])
+
+        if not 2.5 <= float(automat['tank_temp']) <= 4:
+            automat_errors.append(automat['tank_temp'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR automat_type : ')
+            print(automat['automat_type'])
+
+        if not 8 <= float(automat['ext_temp']) <= 14:
+            automat_errors.append(automat['ext_temp'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR ext_temp : ')
+            print(automat['ext_temp'])
+
+        if not 3512 <= int(automat['milk_weight']) <= 4607:
+            automat_errors.append(automat['milk_weight'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR milk_weight : ')
+            print(automat['milk_weight'])
+
+        if not 6.8 <= float(automat['ph']) <= 7.2:
+            automat_errors.append(automat['ph'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR ph : ')
+            print(automat['ph'])
+
+        if not 35 <= int(automat['kplus']) <= 47:
+            automat_errors.append(automat['kplus'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR kplus : ')
+            print(automat['kplus'])
+
+        if not 1 <= float(automat['nacl']) <= 1.7:
+            automat_errors.append(automat['nacl'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR nacl : ')
+            print(automat['nacl'])
+
+        if not 17 <= int(automat['salmonella']) <= 37:
+            automat_errors.append(automat['salmonella'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR salmonella : ')
+            print(automat['salmonella'])
+
+        if not 35 <= int(automat['e_coli']) <= 49:
+            automat_errors.append(automat['e_coli'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR e_coli : ')
+            print(automat['e_coli'])
+
+        if not 28 <= int(automat['listeria']) <= 54:
+            automat_errors.append(automat['listeria'])
+            print('ERROR for unit_number : ')
+            print(dict_data['unit_number'])
+            print('ERROR listeria : ')
+            print(automat['listeria'])
+        if len(automat_errors) > 0:
+            errors.append(automat_errors)
+    return not errors
+
+
+def insert_anomalies(dict_data):
+    data_inserted = False
+    try:
+        conn = connect_to_db()
+        conn.autocommit = False
+        cursor = conn.cursor()
+
+        datenow = datetime.now()
+        occurence_date = datenow.isoformat()
+
+        for automat in dict_data['automats']:
+            cursor.execute(
+                "INSERT INTO anomaly (occurence_date, unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (TIMESTAMP(%s), %s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (occurence_date, dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                 automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
+                 automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
+                 automat['listeria'])
+            )
+        conn.commit()
+        data_inserted = True
+        print('anomalies inserted')
+    except mariadb.Error as error_mariadb:
+        print("Failed to insert anomalies to database rollback: {}".format(error_mariadb))
+        conn.rollback()
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+        return data_inserted
+
+
 def insert_automats_data(dict_data):
     data_inserted = False
     try:
@@ -155,7 +271,10 @@ def multi_threaded_client(connection):
                 if not is_banned(dict_data['unit_number']):
                     if check_proof(dict_data['proof'], dict_data['created_at']):
                         print('proof match, insert datas in db')
-                        data_inserted = insert_automats_data(dict_data)
+                        if is_data_correct(dict_data):
+                            data_inserted = insert_automats_data(dict_data)
+                        else:
+                            data_inserted = insert_anomalies(dict_data)
                     else:
                         print('proof does not match, dont insert datas')
                 else:

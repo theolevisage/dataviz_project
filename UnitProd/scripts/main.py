@@ -47,6 +47,11 @@ def generate_automats_data(created_at, proof):
     }
     for i in range(10):
         automat_type = automats_types[i]
+        # Uncomment to simulate anomalies on unit_number 1
+        #if unit_number == str(1):
+        #    automat_number = 45
+        #else:
+        #    automat_number = i + 1
         automat_number = i + 1
         tank_temp = round(random.random() * 1.5 + 2.5, 1)
         ext_temp = round(random.random() * 6 + 8, 1)
