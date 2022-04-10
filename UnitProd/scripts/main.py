@@ -4,7 +4,6 @@ import json
 import random
 import time
 from datetime import datetime
-from os.path import exists
 import gnupg
 
 gpg = gnupg.GPG('/usr/bin/gpg')
@@ -13,7 +12,6 @@ init = True
 unit_number = os.getenv('UNIT_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
-unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
 
 
 def get_automats_types():
@@ -85,11 +83,11 @@ time.sleep(10)
 
 while True:
     if (init):
+        unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
         datas = {
             "unit_number": unit_number,
             "public_key": unit_public_key
         }
-        init = False
         datas = json.dumps(datas).encode('utf-8')
     else:
         datenow = datetime.now()
@@ -124,17 +122,20 @@ while True:
     received = convert_data(received)
     if('public_key' in received):
         path_public_collector_key = '../.keys/collector.gpg'
-        file_exists = exists(path_public_collector_key)
-        if not file_exists:
-            f = open('../.keys/collector.gpg', 'x')
-            f.write(received['public_key'])
-            f.close()
-            f = open('../.keys/collector.gpg', 'r')
-            import_result = gpg.import_keys(f.read())
-            gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
-            f.close()
+        f = open(path_public_collector_key, 'w')
+        f.write(received['public_key'])
+        f.close()
+        f = open(path_public_collector_key, 'r')
+        import_result = gpg.import_keys(f.read())
+        gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
+        f.close()
+        init = False
     else:
         decrypt_result = gpg.decrypt(received)
+        print(decrypt_result.ok)
+        print(decrypt_result.status)
+        print(decrypt_result.stderr)
+        print(decrypt_result.data)
 
     ClientMultiSocket.close()
     time.sleep(60)

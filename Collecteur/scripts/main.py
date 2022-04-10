@@ -1,6 +1,5 @@
 import socket
 import mysql.connector as mariadb
-from os.path import exists
 from datetime import datetime
 from _thread import *
 import time
@@ -189,6 +188,15 @@ def insert_automats_data(dict_data):
 
 
 def insert_production_unit(secure_payload):
+    path_public_unit_key = '../.keys/unit_' + secure_payload['unit_number'] + '.gpg'
+    f = open(path_public_unit_key, 'w')
+    f.write(secure_payload['public_key'])
+    f.close()
+    f = open(path_public_unit_key, 'r')
+    import_result = gpg.import_keys(f.read())
+    gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
+    f.close()
+
     try:
         conn = connect_to_db()
         cur = conn.cursor()
@@ -200,17 +208,6 @@ def insert_production_unit(secure_payload):
 
         conn.commit()
         print('unit inserted')
-
-        path_public_unit_key = '../.keys/unit_' + secure_payload['unit_number'] + '.gpg'
-        file_exists = exists(path_public_unit_key)
-        if not file_exists:
-            f = open(path_public_unit_key, 'x')
-            f.write(secure_payload['public_key'])
-            f.close()
-            f = open(path_public_unit_key, 'r')
-            import_result = gpg.import_keys(f.read())
-            gpg.trust_keys(import_result.fingerprints, 'TRUST_ULTIMATE')
-            f.close()
 
     except mariadb.Error as error_mariadb:
         print("Failed to insert production unit to database rollback: {}".format(error_mariadb))
@@ -276,7 +273,7 @@ def multi_threaded_client(connection):
                         else:
                             data_inserted = insert_anomalies(dict_data)
                     else:
-                        print('proof does not match, dont insert datas')
+                        print('proof does not match, do not insert datas')
                 else:
                     print(str(dict_data['unit_number']), 'is banned')
                     # this machine is banned, special treatment ?
