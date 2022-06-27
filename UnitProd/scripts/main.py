@@ -38,9 +38,20 @@ def make_work_proof(stamp, exposant, decalage):
     return xor << int(decalage)
 
 
-def generate_automats_data(created_at, proof):
+def get_last_sequence_number():
+    if os.path.isfile('/lastsequencenumber/number.txt'):
+        f = open('/lastsequencenumber/number.txt')
+        new_sequence_number = int(f.readline()) + 1
+        f.close()
+    else:
+        new_sequence_number = 1
+    return new_sequence_number
+
+
+def generate_automats_data(created_at, proof, new_sequence_number):
     datas = {
         "unit_number": unit_number,
+        "sequence_number": new_sequence_number,
         "created_at": created_at,
         "automats": [],
         "proof": proof,
@@ -97,12 +108,17 @@ while True:
         # generate a proof of work
         proof = make_work_proof(stamp, exposant, decalage)
         created_at = datenow.isoformat()
+        new_sequence_number = get_last_sequence_number()
         # generate automats data
-        datas = generate_automats_data(created_at, proof)
+        datas = generate_automats_data(created_at, proof, new_sequence_number)
         # write json file in filesystem
         datas = json.dumps(datas).encode('utf-8')
-        f = open('/jsonsavefiles/' + str(stamp) + '.json', 'wb')
+        f = open('/jsonsavefiles/' + str(new_sequence_number) + '.json', 'wb')
         f.write(datas)
+        f.close()
+        # write sequence number, w mode erase previous content
+        f = open('/lastsequencenumber/number.txt', 'w')
+        f.write(str(new_sequence_number))
         f.close()
         # encrypt datas
         encrypt_datas = gpg.encrypt(datas, 'collector@mail.com')

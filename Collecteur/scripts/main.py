@@ -163,8 +163,8 @@ def insert_anomalies(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO anomaly (occurence_date, unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (TIMESTAMP(%s), %s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (occurence_date, dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                "INSERT INTO anomaly (occurence_date, unit_number, created_at, sequence_number, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (TIMESTAMP(%s), %s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (occurence_date, dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), dict_data['sequence_number'], automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
@@ -191,8 +191,8 @@ def insert_automats_data(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO automat (unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                "INSERT INTO automat (unit_number, created_at, sequence_number, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), dict_data['sequence_number'], automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
@@ -278,7 +278,7 @@ def multi_threaded_client(connection):
         if data:
             dict_data = convert_data(data)
             key = "public_key"
-            if(key in dict_data):
+            if key in dict_data:
                 insert_production_unit(dict_data)
                 collector_key = gpg.export_keys('collector <collector@mail.com>')
                 payload = {
@@ -308,7 +308,7 @@ def multi_threaded_client(connection):
                 payload = {
                     "name": "collector",
                     "data_inserted": data_inserted,
-                    "datetime": dict_data['created_at']
+                    "sequence_number": dict_data['sequence_number']
                 }
                 encryption_result = gpg.encrypt(json.dumps(payload).encode('utf-8'), 'unit' + dict_data['unit_number'] + '@mail.com')
                 data = encryption_result.data
