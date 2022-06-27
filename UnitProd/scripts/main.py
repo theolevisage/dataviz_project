@@ -150,10 +150,10 @@ while True:
         init = False
     else:
         decrypt_result = gpg.decrypt(received)
-        print(decrypt_result.ok)
-        print(decrypt_result.status)
-        print(decrypt_result.stderr)
-        print(decrypt_result.data)
+        if decrypt_result.ok:
+            print(decrypt_result.data)
+            new_sequence_number = convert_data(decrypt_result.data)['sequence_number']
+            os.remove('/jsonsavefiles/' + str(new_sequence_number) + '.json')
 
     ClientMultiSocket.close()
     time.sleep(60)
