@@ -34,8 +34,8 @@ def convert_data(binary_data):
 
 
 def make_work_proof(stamp, exposant, decalage):
-    xor = int(stamp) ^ exposant
-    return xor << decalage
+    xor = int(stamp) ^ int(exposant)
+    return xor << int(decalage)
 
 
 def generate_automats_data(created_at, proof):
@@ -95,7 +95,7 @@ while True:
         datenow = datetime.now()
         stamp = datetime.timestamp(datenow)
         # generate a proof of work
-        proof = make_work_proof(stamp)
+        proof = make_work_proof(stamp, exposant, decalage)
         created_at = datenow.isoformat()
         # generate automats data
         datas = generate_automats_data(created_at, proof)
