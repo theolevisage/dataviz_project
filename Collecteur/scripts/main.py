@@ -16,6 +16,29 @@ host = 'collector'
 port = 65432
 ThreadCount = 0
 
+proof_config = {
+    "1": {
+        "decalage": 1,
+        "exposant": 1000
+    },
+    "2": {
+        "decalage": 2,
+        "exposant": 2000
+    },
+    "3": {
+        "decalage": 3,
+        "exposant": 3000
+    },
+    "4": {
+        "decalage": 4,
+        "exposant": 4000
+    },
+    "5": {
+        "decalage": 5,
+        "exposant": 5000
+    }
+}
+
 try:
     ServerSideSocket.bind((host, port))
 except socket.error as e:
@@ -140,8 +163,8 @@ def insert_anomalies(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO anomaly (occurence_date, unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (TIMESTAMP(%s), %s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (occurence_date, dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                "INSERT INTO anomaly (occurence_date, unit_number, created_at, sequence_number, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (TIMESTAMP(%s), %s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (occurence_date, dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), dict_data['sequence_number'], automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
@@ -168,8 +191,8 @@ def insert_automats_data(dict_data):
 
         for automat in dict_data['automats']:
             cursor.execute(
-                "INSERT INTO automat (unit_number, created_at, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), automat['automat_type'],
+                "INSERT INTO automat (unit_number, created_at, sequence_number, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (dict_data['unit_number'], datetime.fromisoformat(dict_data['created_at']), dict_data['sequence_number'], automat['automat_type'],
                  automat['automat_number'], automat['tank_temp'], automat['ext_temp'], automat['milk_weight'],
                  automat['ph'], automat['kplus'], automat['nacl'], automat['salmonella'], automat['e_coli'],
                  automat['listeria'])
@@ -219,11 +242,13 @@ def insert_production_unit(secure_payload):
             conn.close()
 
 
-def check_proof(sended_proof, created_at):
+def check_proof(sended_proof, created_at, unit_nb):
+    decalage = proof_config[unit_nb]["decalage"]
+    exposant = proof_config[unit_nb]["exposant"]
     datetime_created_at = datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.%f')
     stamp = datetime.timestamp(datetime_created_at)
-    xor = int(stamp) ^ 10000
-    needed_proof = xor << 2
+    xor = int(stamp) ^ exposant
+    needed_proof = xor << decalage
     return sended_proof == needed_proof
 
 
@@ -253,7 +278,7 @@ def multi_threaded_client(connection):
         if data:
             dict_data = convert_data(data)
             key = "public_key"
-            if(key in dict_data):
+            if key in dict_data:
                 insert_production_unit(dict_data)
                 collector_key = gpg.export_keys('collector <collector@mail.com>')
                 payload = {
@@ -265,8 +290,11 @@ def multi_threaded_client(connection):
                 decrypted_data = gpg.decrypt(dict_data)
                 dict_data = convert_data(decrypted_data.data)
                 data_inserted = True
-                if not is_banned(dict_data['unit_number']):
-                    if check_proof(dict_data['proof'], dict_data['created_at']):
+                unit_number = dict_data['unit_number']
+                if not is_banned(unit_number):
+                    proof = dict_data['proof']
+                    creation_date = dict_data['created_at']
+                    if check_proof(proof, creation_date, unit_number):
                         print('proof match, insert datas in db')
                         if is_data_correct(dict_data):
                             data_inserted = insert_automats_data(dict_data)
@@ -280,7 +308,7 @@ def multi_threaded_client(connection):
                 payload = {
                     "name": "collector",
                     "data_inserted": data_inserted,
-                    "datetime": dict_data['created_at']
+                    "sequence_number": dict_data['sequence_number']
                 }
                 encryption_result = gpg.encrypt(json.dumps(payload).encode('utf-8'), 'unit' + dict_data['unit_number'] + '@mail.com')
                 data = encryption_result.data

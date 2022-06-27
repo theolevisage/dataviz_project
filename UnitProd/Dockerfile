@@ -12,5 +12,6 @@ RUN ./init.sh ${NAME} ${MAIL}
 
 RUN pip3 install python-gnupg
 RUN mkdir /jsonsavefiles
+RUN mkdir /lastsequencenumber
 EXPOSE 65432
 CMD ["python", "./main.py"]

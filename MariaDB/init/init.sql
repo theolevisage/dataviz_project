@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS production_unit (
 CREATE TABLE IF NOT EXISTS automat (
     unit_number INT,
     created_at TIMESTAMP,
+    sequence_number INT,
     automat_type INT,
     automat_number INT,
     tank_temp FLOAT,
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS automat (
     salmonella INT,
     e_coli INT,
     listeria INT,
-    PRIMARY KEY(unit_number, created_at, automat_number),
+    PRIMARY KEY(unit_number, sequence_number, automat_number),
     CONSTRAINT FK_UnitNumber FOREIGN KEY (unit_number) REFERENCES production_unit(unit_number) ON DELETE CASCADE
 );
 
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS anomaly (
     occurence_date TIMESTAMP,
     unit_number INT,
     created_at TIMESTAMP,
+    sequence_number INT,
     automat_type INT,
     automat_number INT,
     tank_temp FLOAT,
