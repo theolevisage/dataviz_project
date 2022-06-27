@@ -16,6 +16,29 @@ host = 'collector'
 port = 65432
 ThreadCount = 0
 
+proof_config = {
+    "unit1": {
+        "decalage": 1,
+        "exposant": 1000
+    },
+    "unit2": {
+        "decalage": 2,
+        "exposant": 2000
+    },
+    "unit3": {
+        "decalage": 3,
+        "exposant": 3000
+    },
+    "unit4": {
+        "decalage": 4,
+        "exposant": 4000
+    },
+    "unit5": {
+        "decalage": 5,
+        "exposant": 5000
+    }
+}
+
 try:
     ServerSideSocket.bind((host, port))
 except socket.error as e:
@@ -219,11 +242,13 @@ def insert_production_unit(secure_payload):
             conn.close()
 
 
-def check_proof(sended_proof, created_at):
+def check_proof(sended_proof, created_at, unit_nb):
+    decalage = proof_config[unite_number]["decalage"]
+    exposant = proof_config[unite_number]["exposant"]
     datetime_created_at = datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.%f')
     stamp = datetime.timestamp(datetime_created_at)
-    xor = int(stamp) ^ 10000
-    needed_proof = xor << 2
+    xor = int(stamp) ^ exposant
+    needed_proof = xor << decalage
     return sended_proof == needed_proof
 
 
@@ -265,8 +290,11 @@ def multi_threaded_client(connection):
                 decrypted_data = gpg.decrypt(dict_data)
                 dict_data = convert_data(decrypted_data.data)
                 data_inserted = True
-                if not is_banned(dict_data['unit_number']):
-                    if check_proof(dict_data['proof'], dict_data['created_at']):
+                unite_number = dict_data['unit_number']
+                if not is_banned(unite_number):
+                    proof = dict_data['proof']
+                    creation_date = dict_data['created_at']
+                    if check_proof(proof, creation_date, unite_number):
                         print('proof match, insert datas in db')
                         if is_data_correct(dict_data):
                             data_inserted = insert_automats_data(dict_data)

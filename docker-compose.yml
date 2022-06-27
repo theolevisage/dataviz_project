@@ -54,6 +54,8 @@ services:
     environment:
       - NAME=unit1
       - MAIL=unit1@mail.com
+      - DECALAGE=1
+      - EXPOSANT=1000
       - UNIT_NUMBER=1
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=9
@@ -81,6 +83,8 @@ services:
     environment:
       - NAME=unit2
       - MAIL=unit2@mail.com
+      - DECALAGE=2
+      - EXPOSANT=2000
       - UNIT_NUMBER=2
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=13
@@ -108,6 +112,8 @@ services:
     environment:
       - NAME=unit3
       - MAIL=unit3@mail.com
+      - DECALAGE=3
+      - EXPOSANT=3000
       - UNIT_NUMBER=3
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=8
@@ -135,6 +141,8 @@ services:
     environment:
       - NAME=unit4
       - MAIL=unit4@mail.com
+      - DECALAGE=4
+      - EXPOSANT=4000
       - UNIT_NUMBER=4
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=8
@@ -162,6 +170,8 @@ services:
     environment:
       - NAME=unit5
       - MAIL=unit5@mail.com
+      - DECALAGE=5
+      - EXPOSANT=5000
       - UNIT_NUMBER=5
       - PYTHONUNBUFFERED=1
       - AUTOMAT_1_TYPE=10

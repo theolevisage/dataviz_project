@@ -12,6 +12,8 @@ init = True
 unit_number = os.getenv('UNIT_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
+decalage = os.getenv('DECALAGE')
+exposant = os.getenv('EXPOSANT')
 
 
 def get_automats_types():
@@ -31,9 +33,9 @@ def convert_data(binary_data):
         return data
 
 
-def make_work_proof(stamp):
-    xor = int(stamp) ^ 10000
-    return xor << 2
+def make_work_proof(stamp, exposant, decalage):
+    xor = int(stamp) ^ exposant
+    return xor << decalage
 
 
 def generate_automats_data(created_at, proof):
