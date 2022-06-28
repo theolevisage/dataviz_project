@@ -7,11 +7,16 @@ class Unit:
         self.exposant = exposant
         self.number = number
         self.automats = automats
+        self.number_before_boom = 0
 
     def make_work_proof(self, stamp):
         xor = int(stamp) ^ int(self.exposant)
         return xor << int(self.decalage)
 
     def generate_automats_data(self):
+        self.number_before_boom += 1
         for i in range(10):
-            self.automats[i].generate_infos()
+            if int(self.number) == 2 and i == 3 and self.number_before_boom == 4:
+                self.automats[i].generate_error_infos()
+            else:
+                self.automats[i].generate_infos()

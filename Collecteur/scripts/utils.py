@@ -3,7 +3,7 @@ import json
 from config import proof_config
 
 
-def is_data_correct(dict_data):
+def get_errors_data(dict_data):
     errors = []
     for automat in dict_data['automats']:
         automat_errors = []
@@ -87,7 +87,7 @@ def is_data_correct(dict_data):
             errors.append(automat_errors)
             print("errors")
             print(errors)
-    return len(errors) == 0
+    return errors
 
 
 def check_proof(sended_proof, created_at, unit_nb):

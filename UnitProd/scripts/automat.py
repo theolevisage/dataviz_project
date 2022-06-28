@@ -56,3 +56,31 @@ class Automat:
                 "listeria": listeria
             }
         )
+
+    # to simulate errors
+    def generate_error_infos(self):
+        tank_temp = round(random.random() * 1.5 + 2.5, 1)
+        ext_temp = 4000
+        milk_weight = 25000
+        ph = round(random.random() * 0.4 + 6.8, 1)
+        kplus = round(random.random() * 12) + 35
+        nacl = round(random.random() * 0.7 + 1, 1)
+        salmonella = round(random.random() * 20) + 17
+        e_coli = round(random.random() * 14) + 35
+        listeria = round(random.random() * 26) + 28
+
+        self.set_infos(
+            {
+                "automat_type": self.type,
+                "automat_number": self.number,
+                "tank_temp": tank_temp,
+                "ext_temp": ext_temp,
+                "milk_weight": milk_weight,
+                "ph": ph,
+                "kplus": kplus,
+                "nacl": nacl,
+                "salmonella": salmonella,
+                "e_coli": e_coli,
+                "listeria": listeria
+            }
+        )

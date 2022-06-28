@@ -109,4 +109,4 @@ while True:
             os.remove('/jsonsavefiles/' + str(new_sequence_number) + '.json')
 
     ClientMultiSocket.close()
-    time.sleep(60)
+    time.sleep(20)

@@ -87,8 +87,8 @@ def insert_production_unit(secure_payload):
         cur = conn.cursor()
 
         cur.execute(
-            "INSERT INTO production_unit (unit_number, ban) VALUES (%s, %s)",
-            (secure_payload['unit_number'], 0)
+            "INSERT INTO production_unit (unit_number, ban, errors_count) VALUES (%s, %s, %s)",
+            (secure_payload['unit_number'], 0, 0)
         )
 
         conn.commit()
@@ -121,3 +121,72 @@ def is_banned(unit_number):
             cursor.close()
             conn.close()
         return is_banned
+
+
+def toggle_ban(unit_number, banvalue):
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE production_unit SET ban = %s WHERE unit_number = %s",
+            (banvalue, unit_number)
+        )
+        conn.commit()
+    except mariadb.Error as error_mariadb:
+        print("Failed to query database : {}".format(error_mariadb))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+def insert_log(created_at, message, level):
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO log (created_at, message, level) VALUES (%s, %s, %s)",
+            (created_at, message, level)
+        )
+        conn.commit()
+    except mariadb.Error as error_mariadb:
+        print("Failed to query database : {}".format(error_mariadb))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def update_error_number(unit_number, count_to_add):
+    error_number = get_errors_number(unit_number) + count_to_add
+    print(str(error_number))
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE production_unit SET errors_count = %s WHERE unit_number = %s",
+            (error_number, unit_number)
+        )
+        conn.commit()
+    except mariadb.Error as error_mariadb:
+        print("Failed to query database : {}".format(error_mariadb))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+
+def get_errors_number(unit_number):
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT errors_count FROM production_unit WHERE unit_number = %s",
+            (unit_number, )
+        )
+        return int(cursor.fetchone()[0])
+    except mariadb.Error as error_mariadb:
+        print("Failed to query database : {}".format(error_mariadb))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()

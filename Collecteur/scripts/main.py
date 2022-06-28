@@ -5,8 +5,9 @@ import json
 import gnupg
 
 from config import proof_config, host, port
-from db import connect_to_db, insert_anomalies, insert_automats_data, insert_production_unit, is_banned
-from utils import is_data_correct, check_proof, convert_data
+from datetime import datetime
+from db import connect_to_db, insert_anomalies, insert_automats_data, insert_production_unit, is_banned, toggle_ban, insert_log, get_errors_number, update_error_number
+from utils import get_errors_data, check_proof, convert_data
 
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
@@ -49,11 +50,21 @@ def multi_threaded_client(connection):
                     creation_date = dict_data['created_at']
                     if check_proof(proof, creation_date, unit_number):
                         print('proof match, insert datas in db')
-                        if is_data_correct(dict_data):
-                            print("it is ok")
+                        errors = get_errors_data(dict_data)
+                        nb_errors = len(errors)
+                        if nb_errors == 0:
                             data_inserted = insert_automats_data(dict_data)
                         else:
                             data_inserted = insert_anomalies(dict_data)
+                            update_error_number(unit_number, nb_errors)
+                            total_nb_errors = get_errors_number(unit_number)
+                            print('total error : ' + str(total_nb_errors))
+                            if total_nb_errors > 3:
+                                toggle_ban(unit_number, 1)
+                                level = 'fatal'
+                                message = 'Unit ' + unit_number + ' has been banned because of too many wrong values'
+                                insert_log(datetime.now(), message, level)
+                                print(message)
                     else:
                         print('proof does not match, do not insert datas')
                 else:
