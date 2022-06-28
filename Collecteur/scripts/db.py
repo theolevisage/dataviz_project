@@ -1,4 +1,5 @@
 import mysql.connector as mariadb
+from datetime import datetime
 import gnupg
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
@@ -48,7 +49,7 @@ def insert_automats_data(dict_data):
         conn = connect_to_db()
         conn.autocommit = False
         cursor = conn.cursor()
-
+        print("About to start looping ...")
         for automat in dict_data['automats']:
             cursor.execute(
                 "INSERT INTO automat (unit_number, created_at, sequence_number, automat_type, automat_number, tank_temp, ext_temp, milk_weight, ph, kplus, nacl, salmonella, e_coli, listeria) VALUES (%s, TIMESTAMP(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -63,6 +64,8 @@ def insert_automats_data(dict_data):
     except mariadb.Error as error_mariadb:
         print("Failed to insert automat datas to database rollback: {}".format(error_mariadb))
         conn.rollback()
+    except Exception as error:
+        print(f"Exception hors  {error}")
     finally:
         if conn.is_connected():
             cursor.close()

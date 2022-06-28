@@ -59,9 +59,7 @@ while True:
             "proof": proof,
         }
         unit.generate_automats_data()
-        print('avant hello')
         for automat in unit.automats:
-            print('helloooooooooooooooooooooooooooooooooooooooo')
             datas['automats'].append(automat.infos)
 
         # write json file in filesystem
@@ -94,7 +92,6 @@ while True:
     received = ClientMultiSocket.recv(1024 * 8)
     received = utils.convert_data(received)
     if 'public_key' in received:
-        print('receiveeeeeeeeeeeeeeeeed')
         path_public_collector_key = '../.keys/collector.gpg'
         f = open(path_public_collector_key, 'w')
         f.write(received['public_key'])

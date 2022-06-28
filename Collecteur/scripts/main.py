@@ -50,6 +50,7 @@ def multi_threaded_client(connection):
                     if check_proof(proof, creation_date, unit_number):
                         print('proof match, insert datas in db')
                         if is_data_correct(dict_data):
+                            print("it is ok")
                             data_inserted = insert_automats_data(dict_data)
                         else:
                             data_inserted = insert_anomalies(dict_data)
