@@ -16,7 +16,7 @@ class Unit:
     def generate_automats_data(self):
         self.number_before_boom += 1
         for i in range(10):
-            if int(self.number) == 2 and i == 3 and self.number_before_boom == 4:
+            if int(self.number) == 2 and i == 3 and self.number_before_boom >= 4:
                 self.automats[i].generate_error_infos()
             else:
                 self.automats[i].generate_infos()
