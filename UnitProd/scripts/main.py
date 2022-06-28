@@ -1,101 +1,40 @@
+import gnupg
+import json
 import os
 import socket
-import json
-import random
 import time
-from datetime import datetime
-import gnupg
+import utils
 
+from datetime import datetime
+from automat import Automat
+from unit import Unit
+
+init = True
 gpg = gnupg.GPG('/usr/bin/gpg')
 gpg.encoding = 'utf-8'
-init = True
 unit_number = os.getenv('UNIT_NUMBER')
 name = os.getenv('NAME')
 mail = os.getenv('MAIL')
 decalage = os.getenv('DECALAGE')
 exposant = os.getenv('EXPOSANT')
 
+# create Automats
+automats = []
+automat_types = utils.get_automats_types()
+for i in range(0, len(automat_types)):
+    number = i+1
+    automat_type = automat_types[i]
+    automat = Automat(number, automat_type)
+    automats.append(automat)
 
-def get_automats_types():
-    types = []
-    for i in range(10):
-        types.insert(i, os.getenv('AUTOMAT_' + str(i+1) + '_TYPE'))
-    return types
-
-
-def convert_data(binary_data):
-    str_data = binary_data.decode("UTF-8")
-    try:
-        data = json.loads(str_data)
-    except:
-        data = str_data
-    finally:
-        return data
-
-
-def make_work_proof(stamp, exposant, decalage):
-    xor = int(stamp) ^ int(exposant)
-    return xor << int(decalage)
-
-
-def get_last_sequence_number():
-    if os.path.isfile('/lastsequencenumber/number.txt'):
-        f = open('/lastsequencenumber/number.txt')
-        new_sequence_number = int(f.readline()) + 1
-        f.close()
-    else:
-        new_sequence_number = 1
-    return new_sequence_number
-
-
-def generate_automats_data(created_at, proof, new_sequence_number):
-    datas = {
-        "unit_number": unit_number,
-        "sequence_number": new_sequence_number,
-        "created_at": created_at,
-        "automats": [],
-        "proof": proof,
-    }
-    for i in range(10):
-        automat_type = automats_types[i]
-        # Uncomment to simulate anomalies on unit_number 1
-        #if unit_number == str(1):
-        #    automat_number = 45
-        #else:
-        #    automat_number = i + 1
-        automat_number = i + 1
-        tank_temp = round(random.random() * 1.5 + 2.5, 1)
-        ext_temp = round(random.random() * 6 + 8, 1)
-        milk_weight = round(random.random() * 1095) + 3512
-        ph = round(random.random() * 0.4 + 6.8, 1)
-        kplus = round(random.random() * 12) + 35
-        nacl = round(random.random() * 0.7 + 1, 1)
-        salmonella = round(random.random() * 20) + 17
-        e_coli = round(random.random() * 14) + 35
-        listeria = round(random.random() * 26) + 28
-        automat_infos = {
-            "automat_type": automat_type,
-            "automat_number": automat_number,
-            "tank_temp": tank_temp,
-            "ext_temp": ext_temp,
-            "milk_weight": milk_weight,
-            "ph": ph,
-            "kplus": kplus,
-            "nacl": nacl,
-            "salmonella": salmonella,
-            "e_coli": e_coli,
-            "listeria": listeria
-        }
-        datas['automats'].insert(i, automat_infos)
-    return datas
-
-
-# get automats_types from env
-automats_types = get_automats_types()
+# create Unit
+unit = Unit(name, mail, decalage, exposant, unit_number, automats)
 time.sleep(10)
 
+
 while True:
-    if (init):
+    if init:
+        # keys
         unit_public_key = gpg.export_keys(name + ' <' + mail + '>')
         datas = {
             "unit_number": unit_number,
@@ -105,21 +44,37 @@ while True:
     else:
         datenow = datetime.now()
         stamp = datetime.timestamp(datenow)
+
         # generate a proof of work
-        proof = make_work_proof(stamp, exposant, decalage)
+        proof = unit.make_work_proof(stamp)
         created_at = datenow.isoformat()
-        new_sequence_number = get_last_sequence_number()
+        new_sequence_number = utils.get_last_sequence_number()
+
         # generate automats data
-        datas = generate_automats_data(created_at, proof, new_sequence_number)
+        datas = {
+            "unit_number": unit.number,
+            "sequence_number": new_sequence_number,
+            "created_at": created_at,
+            "automats": [],
+            "proof": proof,
+        }
+        unit.generate_automats_data()
+        print('avant hello')
+        for automat in unit.automats:
+            print('helloooooooooooooooooooooooooooooooooooooooo')
+            datas['automats'].append(automat.infos)
+
         # write json file in filesystem
         datas = json.dumps(datas).encode('utf-8')
         f = open('/jsonsavefiles/' + str(new_sequence_number) + '.json', 'wb')
         f.write(datas)
         f.close()
+
         # write sequence number, w mode erase previous content
         f = open('/lastsequencenumber/number.txt', 'w')
         f.write(str(new_sequence_number))
         f.close()
+
         # encrypt datas
         encrypt_datas = gpg.encrypt(datas, 'collector@mail.com')
         datas = encrypt_datas.data
@@ -137,8 +92,9 @@ while True:
     res = ClientMultiSocket.recv(1024 * 8)
     ClientMultiSocket.send(datas)
     received = ClientMultiSocket.recv(1024 * 8)
-    received = convert_data(received)
-    if('public_key' in received):
+    received = utils.convert_data(received)
+    if 'public_key' in received:
+        print('receiveeeeeeeeeeeeeeeeed')
         path_public_collector_key = '../.keys/collector.gpg'
         f = open(path_public_collector_key, 'w')
         f.write(received['public_key'])
@@ -150,10 +106,10 @@ while True:
         init = False
     else:
         decrypt_result = gpg.decrypt(received)
-        print(decrypt_result.ok)
-        print(decrypt_result.status)
-        print(decrypt_result.stderr)
-        print(decrypt_result.data)
+        if decrypt_result.ok:
+            print(decrypt_result.data)
+            new_sequence_number = utils.convert_data(decrypt_result.data)['sequence_number']
+            os.remove('/jsonsavefiles/' + str(new_sequence_number) + '.json')
 
     ClientMultiSocket.close()
     time.sleep(60)
