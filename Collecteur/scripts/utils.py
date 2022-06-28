@@ -85,7 +85,10 @@ def is_data_correct(dict_data):
             print(automat['listeria'])
         if len(automat_errors) > 0:
             errors.append(automat_errors)
-    return not errors
+        print("errors")
+        print(errors)
+        print(len(errors))
+    return len(errors) == 0
 
 
 def check_proof(sended_proof, created_at, unit_nb):
