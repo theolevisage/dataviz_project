@@ -56,6 +56,10 @@ def multi_threaded_client(connection):
                             data_inserted = insert_automats_data(dict_data)
                         else:
                             data_inserted = insert_anomalies(dict_data)
+                            level = 'error'
+                            message = 'Entries has been saved in anomalies table due to some error. Unit number : ' + unit_number
+                            insert_log(datetime.now(), message, level)
+                            print(message)
                             update_error_number(unit_number, nb_errors)
                             total_nb_errors = get_errors_number(unit_number)
                             print('total error : ' + str(total_nb_errors))
