@@ -5,6 +5,7 @@ USE datas;
 CREATE TABLE IF NOT EXISTS production_unit (
     unit_number INT,
     ban TINYINT(1),
+    errors_count INT DEFAULT 0,
     PRIMARY KEY(unit_number)
 );
 
@@ -44,4 +45,10 @@ CREATE TABLE IF NOT EXISTS anomaly (
     salmonella INT,
     e_coli INT,
     listeria INT
+);
+
+CREATE TABLE IF NOT EXISTS log (
+    created_at TIMESTAMP,
+    message TEXT,
+    level VARCHAR(10)
 );
